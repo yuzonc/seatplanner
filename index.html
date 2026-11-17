@@ -342,6 +342,9 @@ ul.tight{font-size:14px;gap:6px}
 .insp .ih .hint{white-space:nowrap}
 .insp button.more{margin-left:auto;color:var(--muted)}
 .insp-more{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:10px}
+.rlimit{display:flex;flex-direction:column;gap:8px;padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.rlimit .rl-t{margin-top:6px}.rlimit .rl-t button{min-height:28px;padding:2px 8px;margin-right:4px}
+.hint.bad{color:var(--danger)}
 .gfilters{display:flex;flex-direction:column;gap:10px}
 .gf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gf-row .field{min-width:0}
@@ -669,6 +672,7 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
         <div class="glist" id="g-list" data-drop="pool"></div>
       </div>
       <div class="panel" data-panel="rules" hidden>
+        <div id="r-limit"></div>
         <details>
           <summary class="sumbtn">+ Add a rule</summary>
           <div class="fields">
@@ -868,7 +872,9 @@ const Domain = {
     rest.sort((a, b) => a.d - b.d).forEach((z, i) => R[z.t.id] = {rank: i+1, d: z.d, band: i < (s.settings.primeCount||0) && Number.isFinite(z.d) ? "prime" : "std"});
     return R;
   },
-  check(s){
+  /* most subgroups allowed at one table; 0 = no limit. Guests without a subgroup don't count */
+  subLimit(s){ const v = (s.settings || {}).maxSubs; return v == null ? 2 : v; },
+  check(s, lim = Domain.subLimit(s)){
     const tOf = id => s.seating[id] ? s.seating[id].t : null, bad = new Set(), why = {};
     const status = s.rules.map(r => {
       const a = tOf(r.a), b = tOf(r.b); if (a == null || b == null) return "pending";
@@ -878,13 +884,15 @@ const Domain = {
     const byT = {}; s.guests.forEach(g => { const t = tOf(g.id); if (t != null) (byT[t] = byT[t] || []).push(g); });
     const lonely = new Set();
     Object.values(byT).forEach(l => l.forEach(g => { const solo = !g.sub || s.guests.filter(o => o.groupId === g.groupId && o.sub === g.sub).length < 2; if (!l.some(o => o !== g && o.groupId === g.groupId && (solo || o.sub === g.sub))) lonely.add(g.id); }));
-    return {status, bad, why, lonely};
+    const crowded = {};
+    if (lim) Object.entries(byT).forEach(([t, l]) => { const k = new Map(); l.forEach(g => { if (g.sub) k.set(g.groupId + "|" + g.sub, g); }); if (k.size > lim) { const v = [...k.values()]; crowded[t] = v.map(g => v.some(o => o !== g && o.sub.toLowerCase() === g.sub.toLowerCase()) ? `${g.sub} (${(s.groups.find(x => x.id === g.groupId) || {}).name || "?"})` : g.sub); } });
+    return {status, bad, why, lonely, crowded, lim};
   },
   /* greedy: "together" links become one unit; main-tier guests go to anchor tables;
      VIPs take the best-ranked tables; friend groups cluster; "apart" is never broken */
   autoSeat(s){
     const R = Domain.ranks(s), tables = Domain.tables(s).slice().sort((a, b) => R[a.id].rank - R[b.id].rank);
-    const G = Object.fromEntries(s.guests.map(g => [g.id, g])), count = {}, seat = {}, groupAt = {}, subAt = {}, subPlaced = {};
+    const G = Object.fromEntries(s.guests.map(g => [g.id, g])), count = {}, seat = {}, groupAt = {}, subAt = {}, subPlaced = {}, subsAt = {}, lim = Domain.subLimit(s);
     tables.forEach(t => count[t.id] = 0);
     const unitOf = new Map(), units = [];
     s.rules.filter(r => r.type === "together").forEach(r => {
@@ -910,11 +918,12 @@ const Domain = {
         const here = subAt[t.id + "#" + sk(u)] || 0, left = ssize[sk(u)] - (subPlaced[sk(u)] || 0);
         /* starting a subgroup at a table that can't hold the rest of it would split the circle */
         const split = !here && G[u[0]].sub && t.seats - count[t.id] < Math.min(left, t.seats) ? -100 : 0;
-        const v = here * 30 + (groupAt[t.id + "|" + grp(u)] || 0) * 6 + split - i * 2 + (t.anchor ? (tier(u) === 0 ? 1000 : -1000) : 0);
+        const full = lim && !here && G[u[0]].sub && (subsAt[t.id] || new Set()).size >= lim ? -400 : 0;
+        const v = here * 30 + (groupAt[t.id + "|" + grp(u)] || 0) * 6 + split + full - i * 2 + (t.anchor ? (tier(u) === 0 ? 1000 : -1000) : 0);
         if (v > score) { score = v; best = t; }
       });
       if (!best) { missed += u.length; return; }
-      u.forEach(id => { seat[id] = {t: best.id, s: count[best.id]++}; const k = best.id + "|" + G[id].groupId; groupAt[k] = (groupAt[k]||0) + 1; const k2 = best.id + "#" + skey(G[id]); subAt[k2] = (subAt[k2]||0) + 1; subPlaced[skey(G[id])] = (subPlaced[skey(G[id])]||0) + 1; });
+      u.forEach(id => { seat[id] = {t: best.id, s: count[best.id]++}; const k = best.id + "|" + G[id].groupId; groupAt[k] = (groupAt[k]||0) + 1; const k2 = best.id + "#" + skey(G[id]); subAt[k2] = (subAt[k2]||0) + 1; subPlaced[skey(G[id])] = (subPlaced[skey(G[id])]||0) + 1; if (G[id].sub) (subsAt[best.id] = subsAt[best.id] || new Set()).add(skey(G[id])); });
     });
     return {seating: seat, missed};
   }
@@ -1193,6 +1202,8 @@ function tableSvg(doc, el, R, chk, o){
   });
   let top = el.shape === "round" ? `<circle r="${r2(s.w/2)}" style="fill:var(${fill});stroke:var(${line})" stroke-width=".04"/>`
     : `<rect x="${r2(-s.w/2)}" y="${r2(-s.h/2)}" width="${r2(s.w)}" height="${r2(s.h)}" rx=".08" style="fill:var(${fill});stroke:var(${line})" stroke-width=".04"/>`;
+  if (chk.crowded && chk.crowded[el.id]) top += el.shape === "round" ? `<circle r="${r2(s.w/2 + .08)}" fill="none" style="stroke:var(--danger)" stroke-width=".07" stroke-dasharray=".18 .1" pointer-events="none"/>`
+    : `<rect x="${r2(-s.w/2 - .08)}" y="${r2(-s.h/2 - .08)}" width="${r2(s.w + .16)}" height="${r2(s.h + .16)}" rx=".12" fill="none" style="stroke:var(--danger)" stroke-width=".07" stroke-dasharray=".18 .1" pointer-events="none"/>`;
   const filled = map.filter(Boolean).length, cnt = o.preview ? `${el.seats} seats` : `${filled}/${el.seats}`;
   top += (el.shape !== "round" && s.w >= 1.8) ? txt(`${el.label} (${cnt})`, 0, 0, .32, "--t-ink", rot) : txt(el.label, 0, -.18, .3, "--t-ink", rot) + txt(cnt, 0, .2, .26, "--t-ink", rot);
   const bx = el.shape === "round" ? r2(s.w * .36) : r2(s.w/2), by = el.shape === "round" ? r2(-s.h * .36) : r2(-s.h/2);
@@ -1213,7 +1224,7 @@ function selectionSvg(view){
   return o;
 }
 function canvasSvg(doc, o){
-  const R = Domain.ranks(doc), chk = Domain.check(doc);
+  const R = Domain.ranks(doc), chk = Domain.check(doc, o.lim);
   let s = defs(o.p) + `<rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#${o.p}grid)"/>`;
   const bd = doc.backdrop; if (bd && bd.show !== false && PLAN_IMG_URL) s += `<image href="${PLAN_IMG_URL}" x="${bd.x}" y="${bd.y}" width="${bd.w}" height="${bd.h}" preserveAspectRatio="none" opacity="${bd.opacity ?? .35}" pointer-events="none"/>`;
   doc.elements.forEach(el => { s += el.type === "table" ? tableSvg(doc, el, R[el.id], chk, o) : shapeSvg(el, o.p); });
@@ -1376,9 +1387,9 @@ function renderEditor(){
   $("#v-names").textContent = "Names: " + ui.names;
 }
 function renderTools(){
-  const chk = Domain.check(S), seated = Object.keys(S.seating).length, broken = chk.status.filter(x => x === "broken").length;
+  const chk = Domain.check(S), seated = Object.keys(S.seating).length, nb = chk.status.filter(x => x === "broken").length, nc = Object.keys(chk.crowded).length, broken = nb + nc;
   const p = $("#p-seated"); p.textContent = `${seated}/${S.guests.length} seated`; p.className = "pill" + (seated === S.guests.length ? " good" : "");
-  const c = $("#p-conf"); c.textContent = broken ? `${broken} rule${broken > 1 ? "s" : ""} broken` : "All rules met"; c.className = "pill" + (broken ? " bad" : " good");
+  const c = $("#p-conf"); c.textContent = broken ? [nb ? `${nb} rule${nb > 1 ? "s" : ""} broken` : "", nc ? `${nc} table${nc > 1 ? "s" : ""} over subgroup limit` : ""].filter(Boolean).join(", ") : "All rules met"; c.className = "pill" + (broken ? " bad" : " good");
 }
 function showNamesNow(){ return ui.names === "on" || (ui.names === "auto" && ui.view.w < 15); }
 function applyView(){ $("#plan").setAttribute("viewBox", vb(ui.view)); }
@@ -1418,8 +1429,8 @@ function renderInspector(){
   const el = els[0], isT = el.type === "table", R = Domain.ranks(S)[el.id];
   const kind = isT ? (TABLE_SHAPES[el.shape] || TABLE_SHAPES.long).name + " table" : TYPES[el.type].name;
   const rank = isT ? (R.band === "main" ? "Main table" : Number.isFinite(R.d) ? `Rank ${R.rank}, ${R.d.toFixed(1)} m from stage or main table` : "") : "";
-  const more = ui.inspMore, filled = isT ? Domain.seatMap(S, el).filter(Boolean).length : 0;
-  let h = `<div class="insp compact"><div class="row between"><div class="ih"><strong>${esc(el.label)}</strong><span class="hint">${isT ? `${filled}/${el.seats} seated${R.band === "main" ? ", main" : Number.isFinite(R.d) ? ", rank " + R.rank : ""}` : kind}</span></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
+  const chk0 = Domain.check(S), more = ui.inspMore, filled = isT ? Domain.seatMap(S, el).filter(Boolean).length : 0;
+  let h = `<div class="insp compact"><div class="row between"><div class="ih"><strong>${esc(el.label)}</strong><span class="hint">${isT && chk0.crowded[el.id] ? `<span class="hint bad">${chk0.crowded[el.id].length} subgroups, limit ${chk0.lim}</span>` : ""}${isT ? `${filled}/${el.seats} seated${R.band === "main" ? ", main" : Number.isFinite(R.d) ? ", rank " + R.rank : ""}` : kind}</span></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
   h += `<div class="row acts">${isT ? `<button type="button" data-act="seats">Who's here</button><button type="button" data-act="rename">Rename</button><button type="button" data-act="swapt">Swap</button>` : `<button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button>`}<button type="button" class="more" data-act="more" aria-expanded="${more}">${more ? "Less" : "More"}</button></div>`;
   if (more) {
     h += `<div class="insp-more"><p class="hint">${kind}${rank ?  ", " + rank : ""}</p>`;
@@ -1442,7 +1453,7 @@ function gbtn(g, chk, label){
 }
 function renderDrawer(){
   tabVisibility();
-  const chk = Domain.check(S), broken = chk.status.filter(x => x === "broken").length, uns = S.guests.filter(g => !S.seating[g.id]).length;
+  const chk = Domain.check(S), broken = chk.status.filter(x => x === "broken").length + Object.keys(chk.crowded).length, uns = S.guests.filter(g => !S.seating[g.id]).length;
   $("#t-guests").textContent = uns ? `${uns} unseated` : S.guests.length; $("#t-guests").className = "count" + (uns ? " bad" : "");
   $("#t-rules").textContent = broken ? `${broken} broken` : S.rules.length; $("#t-rules").className = "count" + (broken ? " bad" : "");
   $$(".tabs [data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === ui.tab)));
@@ -1502,6 +1513,10 @@ function renderGuests(chk){
     <div class="row">${t ? `<button type="button" data-gact="unseat">Unseat</button>` : ""}<button type="button" class="danger" data-gact="remove">Remove guest</button></div></div>`;
 }
 function renderRules(chk){
+  const lim = chk.lim, over = Object.entries(chk.crowded).map(([id, subs]) => ({t: getEl(id), subs})).filter(x => x.t).sort((a, b) => a.t.label.localeCompare(b.t.label, undefined, {numeric: true}));
+  $("#r-limit").innerHTML = `<div class="rlimit"><label class="field"><span>Subgroups per table</span><select id="r-maxsubs"><option value="0"${lim ? "" : " selected"}>No limit</option>${[1, 2, 3, 4, 5, 6].map(n => `<option value="${n}"${n === lim ? " selected" : ""}>At most ${n}</option>`).join("")}</select></label>`
+    + `<p class="hint">Keeps tables from becoming a mix of too many circles. Guests without a subgroup don't count.</p>`
+    + (over.length ? `<div class="note bad" role="status">${over.length} table${over.length > 1 ? "s have" : " has"} more than ${lim}:${over.map(x => `<div class="rl-t"><button type="button" class="sm" data-limt="${x.t.id}">${esc(x.t.label)}</button> ${x.subs.map(esc).join(", ")}</div>`).join("")}</div>` : lim ? `<p class="note ok" role="status">Every table has ${lim} subgroup${lim > 1 ? "s" : ""} or fewer.</p>` : "") + `</div>`;
   const name = id => esc((guestById(id) || {}).name || "?"), icon = {ok: "\u2713", broken: "!", pending: "?"};
   const order = S.rules.map((r, i) => ({r, st: chk.status[i]})).sort((a, b) => (b.st === "broken") - (a.st === "broken"));
   $("#r-list").innerHTML = (chk.status.includes("broken") ? '<button type="button" class="primary" data-fixrules style="margin-bottom:8px">Fix broken rules with the fewest moves</button>' : "") + (S.rules.length ? order.map(({r, st}) => `<div class="rule"><span class="st-${st}" aria-label="${st}">${icon[st]}</span><span><button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.a}">${name(r.a)}</button> <span class="hint">${r.type === "apart" ? "kept apart from" : "sits with"}</span> <button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.b}">${name(r.b)}</button>${r.note ? `<span class="hint">, ${esc(r.note)}</span>` : ""}</span><button type="button" class="x" data-rule-del="${r.id}" aria-label="Remove rule">\u00D7</button></div>`).join("")
@@ -1846,6 +1861,8 @@ $("#ga-toggle").addEventListener("click", () => toggleAddGuest($("#ga-form").hid
 $("#ga-cancel").addEventListener("click", () => toggleAddGuest(false));
 $("#r-add").addEventListener("click", () => { const c = addRule("#r-a", "#r-b", "#r-type", "#r-note", "#r-err"); if (c) commit(() => { S.candidates.push(c); S.rules.push({id: c.id, type: c.type, a: c.a, b: c.b, note: c.note}); }); });
 ["#r-a", "#r-b", "#w2-a", "#w2-b"].forEach(s => $(s).addEventListener("change", () => { showErr("#r-err", ""); showErr("#w2-err", ""); }));
+$("#r-limit").addEventListener("change", e => { if (e.target.id === "r-maxsubs") commit(() => { S.settings.maxSubs = clamp(Math.round(num(e.target.value, 2)), 0, 20); }); });
+$("#r-limit").addEventListener("click", e => { const b = e.target.closest("[data-limt]"); if (b) revealTable(b.dataset.limt); });
 $("#r-list").addEventListener("click", e => {
   const f = e.target.closest("[data-focus]"); if (f) return focusGuest(f.dataset.focus, "list");
   const b = e.target.closest("[data-rule-del]"); if (b) commit(() => { const id = b.dataset.ruleDel; S.rules = S.rules.filter(r => r.id !== id); const c = S.candidates.find(x => x.id === id); if (c) c.on = false; });
@@ -2551,17 +2568,17 @@ $("#cloud-load").addEventListener("click", () => {
    ===================================================================== */
 const SCEN_MAX = 12;
 const scenarioDoc = () => { const c = JSON.parse(snap()); delete c.importText; delete c.candidates; delete c.unmatched; return c; };
-Domain.metrics = function(s){
-  const chk = Domain.check(s), R = Domain.ranks(s), tabs = Domain.tables(s);
+Domain.metrics = function(s, lim){
+  const chk = Domain.check(s, lim), R = Domain.ranks(s), tabs = Domain.tables(s);
   const seated = s.guests.filter(g => s.seating[g.id]).length, chairs = tabs.reduce((a, t) => a + t.seats, 0);
   const at = {}, size = {};
   s.guests.forEach(g => { if (!g.sub) return; const k = g.groupId + "|" + g.sub; size[k] = (size[k] || 0) + 1; if (s.seating[g.id]) (at[k] = at[k] || new Set()).add(s.seating[g.id].t); });
   const split = Object.entries(at).filter(([k, set]) => size[k] > 1 && set.size > 1).length;
   const vips = s.guests.filter(g => g.tier === 1), vipFront = vips.filter(g => { const a = s.seating[g.id]; return a && R[a.t] && R[a.t].band !== "std"; }).length;
   return {guests: s.guests.length, seated, chairs, tables: tabs.length, used: new Set(Object.values(s.seating).map(a => a.t)).size,
-    broken: chk.status.filter(x => x === "broken").length, lonely: chk.lonely.size, split, vips: vips.length, vipFront};
+    broken: chk.status.filter(x => x === "broken").length, crowded: Object.keys(chk.crowded).length, lim: chk.lim, lonely: chk.lonely.size, split, vips: vips.length, vipFront};
 };
-const metricLine = m => `${m.seated}/${m.guests} seated, ${m.broken} broken, ${m.split} circle${m.split === 1 ? "" : "s"} split`;
+const metricLine = m => `${m.seated}/${m.guests} seated, ${m.broken} broken, ${m.split} circle${m.split === 1 ? "" : "s"} split${m.crowded ? `, ${m.crowded} table${m.crowded > 1 ? "s" : ""} over ${m.lim} subgroups` : ""}`;
 function scenDocById(id){ if (id === "current") return scenarioDoc(); const sc = (S.scenarios || []).find(x => x.id === id); return sc ? sc.doc : null; }
 function scenName(id){ if (id === "current") return "Current plan"; const sc = (S.scenarios || []).find(x => x.id === id); return sc ? sc.name : "?"; }
 function renderScen(){
@@ -2569,7 +2586,7 @@ function renderScen(){
   let h = `<div><strong>Scenarios</strong><p class="hint">Save this layout and seating, try something different, then compare them side by side.</p></div>
     <div class="row" style="flex-wrap:nowrap"><input id="sc-name" placeholder="${esc(next)}" maxlength="40" aria-label="Scenario name"><button type="button" class="primary" id="sc-save">Save</button></div><p class="err" id="sc-err" hidden></p>`;
   if (list.length) {
-    h += `<div class="scl">` + list.slice().sort((a, b) => b.savedAt - a.savedAt).map(sc => { const m = Domain.metrics(sc.doc);
+    h += `<div class="scl">` + list.slice().sort((a, b) => b.savedAt - a.savedAt).map(sc => { const m = Domain.metrics(sc.doc, Domain.subLimit(S));
       return `<div class="scn"><div class="scn-t"><strong>${esc(sc.name)}</strong><span class="hint">Saved ${ago(sc.savedAt)}, ${metricLine(m)}</span></div>
         <div class="row" style="gap:4px"><button type="button" class="sm" data-sccmp="${sc.id}">Compare</button><button type="button" class="sm" data-scopen="${sc.id}">Open</button><button type="button" class="sm danger" data-scdel="${sc.id}" aria-label="Delete ${esc(sc.name)}">Delete</button></div></div>`; }).join("") + `</div>`;
     if (list.length >= 2) h += `<button type="button" id="sc-cmp2">Compare two saved scenarios</button>`;
@@ -2598,9 +2615,9 @@ function renderCompare(){
   const A = scenDocById(cmp.a), B = scenDocById(cmp.b); if (!A || !B) return closeCompare();
   const opts = sel => `<option value="current"${sel === "current" ? " selected" : ""}>Current plan</option>` + (S.scenarios || []).map(sc => `<option value="${sc.id}"${sel === sc.id ? " selected" : ""}>${esc(sc.name)}</option>`).join("");
   $("#cmp-a").innerHTML = opts(cmp.a); $("#cmp-b").innerHTML = opts(cmp.b);
-  const ma = Domain.metrics(A), mb = Domain.metrics(B);
+  const lim = Domain.subLimit(S), ma = Domain.metrics(A, lim), mb = Domain.metrics(B, lim);
   const rows = [["Guests seated", m => `${m.seated} of ${m.guests}`, m => m.seated, "high"], ["Rules broken", m => m.broken, m => m.broken, "low"],
-    ["Circles split across tables", m => m.split, m => m.split, "low"], ["Guests with nobody from their circle", m => m.lonely, m => m.lonely, "low"],
+    ["Circles split across tables", m => m.split, m => m.split, "low"], ...(lim ? [[`Tables with more than ${lim} subgroup${lim > 1 ? "s" : ""}`, m => m.crowded, m => m.crowded, "low"]] : []), ["Guests with nobody from their circle", m => m.lonely, m => m.lonely, "low"],
     ["VIPs at front tables", m => `${m.vipFront} of ${m.vips}`, m => m.vipFront, "high"], ["Tables used", m => `${m.used} of ${m.tables}`, null, null], ["Empty chairs", m => m.chairs - m.seated, null, null]];
   const cell = (m, o, r) => { const v = r[2] ? r[2](m) : null, w = r[2] ? r[2](o) : null, better = r[3] && v !== w && (r[3] === "high" ? v > w : v < w);
     return `<td${better ? ' class="better"' : ""}>${r[1](m)}${better ? ' <span class="badge together">better</span>' : ""}</td>`; };
@@ -2608,7 +2625,7 @@ function renderCompare(){
   const d = Changes.diff(A, B), mark = new Set(d.map(x => x.g.id));
   [["#cmp-svg-a", A, "ca"], ["#cmp-svg-b", B, "cb"]].forEach(([sel, doc, p]) => {
     const els = doc.backdrop && PLAN_IMG_URL ? doc.elements.concat([bdBox(doc.backdrop)]) : doc.elements, svg = $(sel);
-    svg.setAttribute("viewBox", vb(fitBox(els))); svg.innerHTML = canvasSvg(doc, {p, showNames: false, mark});
+    svg.setAttribute("viewBox", vb(fitBox(els))); svg.innerHTML = canvasSvg(doc, {p, showNames: false, mark, lim});
   });
   $("#cmp-name-a").textContent = scenName(cmp.a); $("#cmp-name-b").textContent = scenName(cmp.b);
   $("#cmp-use-a").hidden = cmp.a === "current"; $("#cmp-use-b").hidden = cmp.b === "current";
