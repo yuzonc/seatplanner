@@ -334,6 +334,16 @@ ul.tight{font-size:14px;gap:6px}
 .insp{padding:16px;gap:12px;border-radius:var(--r-md)}
 .insp .acts{gap:6px}
 .insp .acts button{min-height:36px;font-size:13.5px;padding:6px 12px}
+.insp.compact{padding:10px 12px;gap:8px}
+.insp.compact .acts{gap:6px}
+.insp.compact .acts button{min-height:32px;padding:4px 10px;font-size:13px}
+.insp .ih{display:flex;align-items:baseline;gap:8px;min-width:0}
+.insp .ih strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insp .ih .hint{white-space:nowrap}
+.insp button.more{margin-left:auto;color:var(--muted)}
+.insp-more{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:10px}
+#g-subsum .note{line-height:2}
+#g-subsum .note button{min-height:28px;padding:2px 8px;margin:0 2px}
 .tip{font-size:13.5px;padding:10px 12px;max-width:300px;border-radius:var(--r-sm)}
 .tip span{font-size:12.5px;opacity:.85}
 .whyt{font-size:12px}
@@ -640,7 +650,9 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
         <div class="fields">
           <label class="field"><span>Search names or subgroups</span><input id="g-q" type="search" placeholder="Yee Hong or MSoc" autocomplete="off"></label>
           <label class="field"><span>Group</span><select id="g-f"></select></label>
+          <label class="field full"><span>Subgroup</span><select id="g-sf"></select></label>
         </div>
+        <div id="g-subsum"></div>
         <div id="g-card"></div>
         <p class="hint" id="g-hint"></p>
         <label class="check"><input id="g-un" type="checkbox"><span>Unseated only</span></label>
@@ -1094,7 +1106,7 @@ function emptyDoc(){ return {version: SCHEMA_VERSION, step: 1, importText: "", e
 function loadState(){ try { const r = localStorage.getItem(STORAGE_KEY); if (!r) return null; const s = JSON.parse(r); return Domain.valid(s) ? s : null; } catch (e) { return null; } }
 let S = loadState() || emptyDoc();
 Domain.sanitize(S);
-const ui = {sel: new Set(), view: {x:-11, y:-4.6, w:35.5, h:24.6}, tab: "chart", chartQ: "", guestQ: "", filter: "all", guest: null, focus: null, names: "auto", drawer: true, parsed: null, preview: null};
+const ui = {sel: new Set(), view: {x:-11, y:-4.6, w:35.5, h:24.6}, tab: "chart", chartQ: "", guestQ: "", filter: "all", subFilter: "", inspMore: false, guest: null, focus: null, names: "auto", drawer: true, parsed: null, preview: null};
 const hist = {past: [], future: []};
 const snap = () => JSON.stringify(S, (k, v) => k === "scenarios" ? undefined : v);
 let saveT;
@@ -1150,7 +1162,9 @@ function tableSvg(doc, el, R, chk, o){
   let chairs = "", names = "", ring = "";
   ch.forEach((p, i) => {
     const g = map[i], bad = g && chk.bad.has(g.id), px = r2(p.x), py = r2(p.y);
-    chairs += `<circle class="${g ? "chair-g" : ""}" cx="${px}" cy="${py}" r=".22" data-seat="${i}" data-drop="${el.id}"${g ? ` data-cg="${g.id}"` : ""} style="fill:${g ? gColor(doc, g.groupId) : "var(--chair)"};stroke:${bad ? "var(--danger)" : "var(--chair-line)"}" stroke-width="${bad ? .09 : .03}"${bad ? ' stroke-dasharray=".1 .06"' : ""}/>`;
+    const dim = o.hl && g && !o.hl.has(g.id);
+    chairs += `<circle class="${g ? "chair-g" : ""}" cx="${px}" cy="${py}" r=".22" data-seat="${i}" data-drop="${el.id}"${g ? ` data-cg="${g.id}"` : ""} style="fill:${g ? gColor(doc, g.groupId) : "var(--chair)"};stroke:${bad ? "var(--danger)" : "var(--chair-line)"}" stroke-width="${bad ? .09 : .03}"${bad ? ' stroke-dasharray=".1 .06"' : ""}${dim ? ' opacity=".25"' : ""}/>`;
+    if (g && o.hl && o.hl.has(g.id)) ring += `<circle cx="${px}" cy="${py}" r=".34" style="fill:none;stroke:var(--accent)" stroke-width=".08" pointer-events="none"/>`;
     if (o.showNames) chairs += `<text x="${px}" y="${py}" font-size=".15" text-anchor="middle" dominant-baseline="central" transform="rotate(${-rot} ${px} ${py})" style="fill:${g ? "#FFFFFF" : "var(--muted)"}">${i + 1}</text>`;
     if (g && o.mark && o.mark.has(g.id)) ring += `<circle cx="${px}" cy="${py}" r=".36" style="fill:none;stroke:var(--warn)" stroke-width=".1" pointer-events="none"/>`;
     if (g && o.focus === g.id) ring += `<circle class="focus-ring" cx="${px}" cy="${py}" r=".4" style="fill:none;stroke:var(--focus)" stroke-width=".09" pointer-events="none"/>`;
@@ -1353,7 +1367,9 @@ function renderTools(){
 }
 function showNamesNow(){ return ui.names === "on" || (ui.names === "auto" && ui.view.w < 15); }
 function applyView(){ $("#plan").setAttribute("viewBox", vb(ui.view)); }
-function renderPlan(){ applyView(); $("#plan").innerHTML = canvasSvg(S, {p: "ed", showNames: showNamesNow(), focus: ui.focus, selection: true, view: ui.view}); }
+const subKey = g => g.groupId + "|" + g.sub;
+function subHighlight(){ if (!ui.subFilter || S.step !== 4) return null; const m = S.guests.filter(g => g.sub && subKey(g) === ui.subFilter); return m.length ? new Set(m.map(g => g.id)) : null; }
+function renderPlan(){ applyView(); $("#plan").innerHTML = canvasSvg(S, {p: "ed", showNames: showNamesNow(), focus: ui.focus, selection: true, view: ui.view, hl: subHighlight()}); }
 
 function swatch(type, shape){
   if (type === "table" && SHAPE_ICON[shape]) return SHAPE_ICON[shape];
@@ -1387,15 +1403,21 @@ function renderInspector(){
   const el = els[0], isT = el.type === "table", R = Domain.ranks(S)[el.id];
   const kind = isT ? (TABLE_SHAPES[el.shape] || TABLE_SHAPES.long).name + " table" : TYPES[el.type].name;
   const rank = isT ? (R.band === "main" ? "Main table" : Number.isFinite(R.d) ? `Rank ${R.rank} \u00B7 ${R.d.toFixed(1)} m from stage or main table` : "") : "";
-  let h = `<div class="insp"><div class="row between" style="align-items:flex-start"><div><strong>${esc(el.label)}</strong><p class="hint">${kind}${rank ? " \u00B7 " + rank : ""}</p></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
-  if (isT) h += `<div class="fields">${field("Shape", `<select id="i-shape">${Object.entries(TABLE_SHAPES).map(([k, v]) => `<option value="${k}"${k === el.shape ? " selected" : ""}>${v.name.replace(" table", "")}</option>`).join("")}</select>`)}${field("Chairs", `<input id="i-seats" type="number" min="1" max="30" step="1" value="${el.seats}">`)}</div>`;
-  h += `<div class="row acts">${isT ? `<button type="button" data-act="seats">Who's here</button><button type="button" data-act="rename">Rename</button><button type="button" data-act="swapt">Swap guests</button><button type="button" data-act="cleart">Clear seats</button>` : ""}<button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button><button type="button" data-act="${el.locked ? "unlock" : "lock"}">${el.locked ? "Unlock" : "Lock"}</button><button type="button" class="danger" data-act="del">Delete</button></div>`;
-  h += `<details><summary>More options</summary><div class="fields">${field("Name", `<input id="i-label" value="${esc(el.label)}">`, true)}
+  const more = ui.inspMore, filled = isT ? Domain.seatMap(S, el).filter(Boolean).length : 0;
+  let h = `<div class="insp compact"><div class="row between"><div class="ih"><strong>${esc(el.label)}</strong><span class="hint">${isT ? `${filled}/${el.seats} seated${R.band === "main" ? " \u00B7 main" : Number.isFinite(R.d) ? " \u00B7 rank " + R.rank : ""}` : kind}</span></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
+  h += `<div class="row acts">${isT ? `<button type="button" data-act="seats">Who's here</button><button type="button" data-act="rename">Rename</button><button type="button" data-act="swapt">Swap</button>` : `<button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button>`}<button type="button" class="more" data-act="more" aria-expanded="${more}">${more ? "Less" : "More"}</button></div>`;
+  if (more) {
+    h += `<div class="insp-more"><p class="hint">${kind}${rank ? " \u00B7 " + rank : ""}</p>`;
+    if (isT) h += `<div class="fields">${field("Shape", `<select id="i-shape">${Object.entries(TABLE_SHAPES).map(([k, v]) => `<option value="${k}"${k === el.shape ? " selected" : ""}>${v.name.replace(" table", "")}</option>`).join("")}</select>`)}${field("Chairs", `<input id="i-seats" type="number" min="1" max="30" step="1" value="${el.seats}">`)}</div>`;
+    h += `<div class="row acts">${isT ? `<button type="button" data-act="cleart">Clear seats</button><button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button>` : ""}<button type="button" data-act="${el.locked ? "unlock" : "lock"}">${el.locked ? "Unlock" : "Lock"}</button><button type="button" class="danger" data-act="del">Delete</button></div>`;
+    h += `<details><summary>Position and size</summary><div class="fields">${field("Name", `<input id="i-label" value="${esc(el.label)}">`, true)}
     ${field("X (m)", `<input id="i-x" type="number" step="0.1" value="${r2(el.x)}">`)}${field("Y (m)", `<input id="i-y" type="number" step="0.1" value="${r2(el.y)}">`)}
     ${isT ? "" : field("Width (m)", `<input id="i-w" type="number" min="0.2" step="0.1" value="${r2(el.w)}">`) + field("Depth (m)", `<input id="i-h" type="number" min="0.2" step="0.1" value="${r2(el.h)}">`)}
     ${field("Rotation (\u00B0)", `<input id="i-rot" type="number" step="1" value="${normDeg(el.rot || 0)}">`)}
     <label class="check full"><input id="i-anchor" type="checkbox"${el.anchor ? " checked" : ""}><span>Importance anchor<small>Tables nearest an anchor rank highest.</small></span></label>
     <div class="row full"><button type="button" data-act="front">Bring to front</button><button type="button" data-act="back">Send to back</button></div></div></details></div>`;
+  }
+  h += `</div>`;
   box.innerHTML = h;
 }
 
@@ -1439,8 +1461,20 @@ function renderGuests(chk){
   const gs = $("#g-f"); gs.innerHTML = `<option value="all">All groups</option>` + S.groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join("");
   if (!S.groups.some(g => g.id === ui.filter)) ui.filter = "all"; gs.value = ui.filter;
   const ag = $("#ga-group"), agv = ag.value; ag.innerHTML = S.groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join("") + `<option value="__new">New group: Guests</option>`; if (agv) ag.value = agv;
+  const subs = {}; S.guests.forEach(g => { if (g.sub && (ui.filter === "all" || g.groupId === ui.filter)) (subs[subKey(g)] = subs[subKey(g)] || []).push(g); });
+  const skeys = Object.keys(subs).sort((a, b) => subs[a][0].sub.localeCompare(subs[b][0].sub) || gName(subs[a][0].groupId).localeCompare(gName(subs[b][0].groupId)));
+  if (ui.subFilter && !subs[ui.subFilter]) ui.subFilter = "";
+  const dup = {}; skeys.forEach(k => { const n = subs[k][0].sub.toLowerCase(); dup[n] = (dup[n] || 0) + 1; });
+  const sf = $("#g-sf"); sf.disabled = !skeys.length;
+  sf.innerHTML = `<option value="">${skeys.length ? "All subgroups" : "No subgroups yet"}</option>` + skeys.map(k => { const m = subs[k], seated = m.filter(g => S.seating[g.id]), tabs = new Set(seated.map(g => S.seating[g.id].t)).size, n = m[0].sub;
+    return `<option value="${esc(k)}">${esc(n)}${dup[n.toLowerCase()] > 1 || ui.filter === "all" && S.groups.length > 1 ? ` (${esc(gName(m[0].groupId))})` : ""} \u00B7 ${m.length}${tabs > 1 ? `, split over ${tabs} tables` : seated.length < m.length ? `, ${m.length - seated.length} unseated` : ""}</option>`; }).join("");
+  sf.value = ui.subFilter;
+  const sm = ui.subFilter && subs[ui.subFilter];
+  if (sm) { const at = {}; sm.forEach(g => { const a = S.seating[g.id]; if (a) at[a.t] = (at[a.t] || 0) + 1; }); const un = sm.filter(g => !S.seating[g.id]).length, ids = Object.keys(at).filter(getEl).sort((a, b) => at[b] - at[a]);
+    $("#g-subsum").innerHTML = `<div class="note${ids.length > 1 || un ? " warn" : " ok"}" role="status"><strong>${esc(sm[0].sub)}</strong>: ${ids.length ? `${ids.length > 1 ? "split over" : "all at"} ` + ids.map(id => `<button type="button" class="sm" data-subt="${id}">${esc(getEl(id).label)} (${at[id]})</button>`).join(" ") : "nobody seated yet"}${un ? ` \u00B7 ${un} unseated` : ""}. Their chairs are ringed on the plan.</div>`; }
+  else $("#g-subsum").innerHTML = "";
   const q = ui.guestQ.trim().toLowerCase();
-  const list = S.guests.filter(g => (ui.filter === "all" || g.groupId === ui.filter) && (!q || g.name.toLowerCase().includes(q) || (g.sub || "").toLowerCase().includes(q)) && (!ui.unseatedOnly || !S.seating[g.id])).sort((a, b) => a.name.localeCompare(b.name));
+  const list = S.guests.filter(g => (ui.filter === "all" || g.groupId === ui.filter) && (!ui.subFilter || g.sub && subKey(g) === ui.subFilter) && (!q || g.name.toLowerCase().includes(q) || (g.sub || "").toLowerCase().includes(q)) && (!ui.unseatedOnly || !S.seating[g.id])).sort((a, b) => a.name.localeCompare(b.name));
   $("#g-un").checked = !!ui.unseatedOnly; $("#g-total").textContent = `${S.guests.length} guests, ${S.guests.filter(g => !S.seating[g.id]).length} unseated`;
   $("#g-hint").textContent = `${list.length} shown. Click a name to light up their seat, drag it onto a chair to move them, or drop it here to unseat them.`;
   $("#g-list").innerHTML = list.length ? list.map(g => gbtn(g, chk)).join("") : `<span class="hint" style="padding:8px">${q ? "No guests match that search." : ui.unseatedOnly ? "Everyone has a seat." : "No guests yet."}</span>`;
@@ -1741,6 +1775,7 @@ $("#insp").addEventListener("change", e => {
 $("#insp").addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return; const act = b.dataset.act;
   if (act === "close") { ui.sel.clear(); if (RO()) ui.focus = null; renderEditor(); return; }
+  if (act === "more") { ui.inspMore = !ui.inspMore; renderInspector(); const m = $("#insp [data-act='more']"); if (m) m.focus(); return; }
   if (act === "dup") return duplicateSel();
   if (act === "del") return deleteSel();
   if (act === "lock" || act === "unlock") return commit(() => selEls().forEach(el => el.locked = act === "lock"));
@@ -1774,7 +1809,9 @@ $("#chart-list").addEventListener("click", e => { const c = e.target.closest("[d
   ui.sel = new Set([t.id]); const v = ui.view; if (t.x < v.x || t.x > v.x + v.w || t.y < v.y || t.y > v.y + v.h) { v.x = t.x - v.w/2; v.y = t.y - v.h/2; } renderEditor(); });
 $("#g-un").addEventListener("change", e => { ui.unseatedOnly = e.target.checked; renderGuests(Domain.check(S)); });
 $("#g-q").addEventListener("input", e => { ui.guestQ = e.target.value; renderGuests(Domain.check(S)); });
-$("#g-f").addEventListener("change", e => { ui.filter = e.target.value; renderGuests(Domain.check(S)); });
+$("#g-f").addEventListener("change", e => { ui.filter = e.target.value; renderGuests(Domain.check(S)); renderPlan(); });
+$("#g-sf").addEventListener("change", e => { ui.subFilter = e.target.value; renderGuests(Domain.check(S)); renderPlan(); });
+$("#g-subsum").addEventListener("click", e => { const b = e.target.closest("[data-subt]"); if (b) revealTable(b.dataset.subt); });
 $("#g-card").addEventListener("change", e => { const g = guestById(ui.guest); if (!g) return; const t = e.target;
   commit(() => { if (t.id === "g-name") g.name = t.value.trim() || g.name; if (t.id === "g-grp") g.groupId = t.value; if (t.id === "g-sub") g.sub = t.value.trim(); if (t.id === "g-tier") g.tier = +t.value; }); });
 $("#g-card").addEventListener("click", e => { const b = e.target.closest("[data-gact]"); if (!b) return; const g = guestById(ui.guest); if (!g) return;
