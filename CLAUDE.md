@@ -86,7 +86,7 @@ Enable Realtime on `public.plans`. In Auth settings, add the Vercel URL to the r
 Client:
 - Load `@supabase/supabase-js` v2 UMD from jsDelivr or cdnjs with an exact pinned version (check the real path, for example `.../dist/umd/supabase.js`). Put `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `PLAN_ID` in `config.js`, loaded before the main script.
 - Add a new script section `15. SHARED SYNC` before `14. BOOT`, with a small `Sync` object:
-  - `signIn(email)`: `auth.signInWithOtp({email, options: {emailRedirectTo: location.origin}})`. Show a simple sign-in card on first visit (reuse `.card`, `.field`, `button.primary` styles). Show "Signed in as … · Sign out" in the More menu.
+  - `signIn(email)`: `auth.signInWithOtp({email, options: {emailRedirectTo: location.origin}})`. Show a simple sign-in card on first visit (reuse `.card`, `.field`, `button.primary` styles). Show "Signed in as …" and a "Sign out" button in the More menu.
   - `pull()`: select the row. If `json` is empty, offer to upload this browser's plan. If local is empty, load remote. If remote `rev` is newer than the last `rev` seen and local has unsynced edits, show the existing `#cloud-note` banner (text in `#cloud-note-t`, buttons `#cloud-load` / `#cloud-dismiss`) with "Load theirs" / "Keep mine".
   - `push()`: `update plans set json, rev = rev + 1, updated_by = email where id = PLAN_ID and rev = lastRev`. Zero rows updated means a conflict: pull and show the banner. Never overwrite blindly.
   - Realtime: subscribe to updates on the row. If there are no unsynced local edits, load the new version straight away (keep the current view and selection if possible). Otherwise show the banner.

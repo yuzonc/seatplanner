@@ -975,7 +975,7 @@ const Extractor = {
     };
     rows.forEach((r, i) => {
       const g = guests[i];
-      const link = (n, type, note, col) => { const o = byName.get(n.toLowerCase()); if (!o) { unmatched.push({name: n, line: r.line, col, who: g.name}); return; } push(g, o, type, note, `Row ${r.line} \u00B7 ${col}`, "sheet"); };
+      const link = (n, type, note, col) => { const o = byName.get(n.toLowerCase()); if (!o) { unmatched.push({name: n, line: r.line, col, who: g.name}); return; } push(g, o, type, note, `Row ${r.line}, ${col}`, "sheet"); };
       if (r.plusOneOf) link(r.plusOneOf, "together", "Plus one", r.fromPattern ? "+1 in name" : "Plus one of");
       r.sitWith.forEach(n => link(n, "together", "Sit together", "Sit with"));
       r.apart.forEach(n => link(n, "apart", "Keep apart", "Keep apart from"));
@@ -1187,7 +1187,7 @@ function tableSvg(doc, el, R, chk, o){
   let top = el.shape === "round" ? `<circle r="${r2(s.w/2)}" style="fill:var(${fill});stroke:var(${line})" stroke-width=".04"/>`
     : `<rect x="${r2(-s.w/2)}" y="${r2(-s.h/2)}" width="${r2(s.w)}" height="${r2(s.h)}" rx=".08" style="fill:var(${fill});stroke:var(${line})" stroke-width=".04"/>`;
   const filled = map.filter(Boolean).length, cnt = o.preview ? `${el.seats} seats` : `${filled}/${el.seats}`;
-  top += (el.shape !== "round" && s.w >= 1.8) ? txt(`${el.label} \u00B7 ${cnt}`, 0, 0, .32, "--t-ink", rot) : txt(el.label, 0, -.18, .3, "--t-ink", rot) + txt(cnt, 0, .2, .26, "--t-ink", rot);
+  top += (el.shape !== "round" && s.w >= 1.8) ? txt(`${el.label} (${cnt})`, 0, 0, .32, "--t-ink", rot) : txt(el.label, 0, -.18, .3, "--t-ink", rot) + txt(cnt, 0, .2, .26, "--t-ink", rot);
   const bx = el.shape === "round" ? r2(s.w * .36) : r2(s.w/2), by = el.shape === "round" ? r2(-s.h * .36) : r2(-s.h/2);
   top += `<g transform="translate(${bx} ${by}) rotate(${-rot})"><circle r=".27" style="fill:var(${line})"/><text font-size=".28" text-anchor="middle" dominant-baseline="central" style="fill:var(--panel)">${R && R.band === "main" ? "M" : R ? R.rank : ""}</text></g>`;
   return `<g class="el${el.locked ? " locked" : ""}" data-id="${el.id}" data-drop="${el.id}" transform="translate(${el.x} ${el.y}) rotate(${rot})">${top}${chairs}${names}${ring}</g>`;
@@ -1344,7 +1344,7 @@ function renderW3Preview(){
   svg.innerHTML = canvasSvg(doc, {p: "pv", preview: true, showNames: false});
   const chairs = els.filter(e => e.type === "table").reduce((a, t) => a + t.seats, 0), need = S.guests.length, short = chairs < need;
   const c = $("#w3-count"); c.className = "count" + (short ? " short" : "");
-  c.textContent = `${chairs} seats added \u2022 ${need} guests invited${short ? ` \u2022 ${need - chairs} short` : ""}`;
+  c.textContent = `${chairs} seats added, ${need} guests invited${short ? `, ${need - chairs} short` : ""}`;
   if (S.venue.base === "upload") { $("#w3-note").textContent = !PLAN_IMG ? "Upload an image to see it here." : overflow ? `${overflow} extra table${overflow > 1 ? "s sit" : " sits"} to the right of your plan. Drag ${overflow > 1 ? "them" : "it"} into place in the next step.` : "Preview. You can drag everything around in the next step."; return; }
   $("#w3-note").textContent = overflow ? `${overflow} table${overflow > 1 ? "s" : ""} didn't fit on the deck, so ${overflow > 1 ? "they sit" : "it sits"} to the right. Drag ${overflow > 1 ? "them" : "it"} into place in the next step.` : "Preview. You can drag everything around in the next step.";
 }
@@ -1410,12 +1410,12 @@ function renderInspector(){
   }
   const el = els[0], isT = el.type === "table", R = Domain.ranks(S)[el.id];
   const kind = isT ? (TABLE_SHAPES[el.shape] || TABLE_SHAPES.long).name + " table" : TYPES[el.type].name;
-  const rank = isT ? (R.band === "main" ? "Main table" : Number.isFinite(R.d) ? `Rank ${R.rank} \u00B7 ${R.d.toFixed(1)} m from stage or main table` : "") : "";
+  const rank = isT ? (R.band === "main" ? "Main table" : Number.isFinite(R.d) ? `Rank ${R.rank}, ${R.d.toFixed(1)} m from stage or main table` : "") : "";
   const more = ui.inspMore, filled = isT ? Domain.seatMap(S, el).filter(Boolean).length : 0;
-  let h = `<div class="insp compact"><div class="row between"><div class="ih"><strong>${esc(el.label)}</strong><span class="hint">${isT ? `${filled}/${el.seats} seated${R.band === "main" ? " \u00B7 main" : Number.isFinite(R.d) ? " \u00B7 rank " + R.rank : ""}` : kind}</span></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
+  let h = `<div class="insp compact"><div class="row between"><div class="ih"><strong>${esc(el.label)}</strong><span class="hint">${isT ? `${filled}/${el.seats} seated${R.band === "main" ? ", main" : Number.isFinite(R.d) ? ", rank " + R.rank : ""}` : kind}</span></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>`;
   h += `<div class="row acts">${isT ? `<button type="button" data-act="seats">Who's here</button><button type="button" data-act="rename">Rename</button><button type="button" data-act="swapt">Swap</button>` : `<button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button>`}<button type="button" class="more" data-act="more" aria-expanded="${more}">${more ? "Less" : "More"}</button></div>`;
   if (more) {
-    h += `<div class="insp-more"><p class="hint">${kind}${rank ? " \u00B7 " + rank : ""}</p>`;
+    h += `<div class="insp-more"><p class="hint">${kind}${rank ?  ", " + rank : ""}</p>`;
     if (isT) h += `<div class="fields">${field("Shape", `<select id="i-shape">${Object.entries(TABLE_SHAPES).map(([k, v]) => `<option value="${k}"${k === el.shape ? " selected" : ""}>${v.name.replace(" table", "")}</option>`).join("")}</select>`)}${field("Chairs", `<input id="i-seats" type="number" min="1" max="30" step="1" value="${el.seats}">`)}</div>`;
     h += `<div class="row acts">${isT ? `<button type="button" data-act="cleart">Clear seats</button><button type="button" data-act="rot90">Rotate 90\u00B0</button><button type="button" data-act="dup">Duplicate</button>` : ""}<button type="button" data-act="${el.locked ? "unlock" : "lock"}">${el.locked ? "Unlock" : "Lock"}</button><button type="button" class="danger" data-act="del">Delete</button></div>`;
     h += `<details><summary>Position and size</summary><div class="fields">${field("Name", `<input id="i-label" value="${esc(el.label)}">`, true)}
@@ -1443,7 +1443,7 @@ function renderDrawer(){
   renderChart(chk); renderGuests(chk); renderRules(chk); renderFamily(); renderMine();
 }
 function cardHead(t, r, map){
-  const filled = map.filter(Boolean).length, meta = `${r.band === "main" ? "main table" : "rank " + r.rank} \u00B7 ${filled}/${t.seats}`;
+  const filled = map.filter(Boolean).length, meta = `${r.band === "main" ? "main table" : "rank " + r.rank}, ${filled}/${t.seats}`;
   if (ui.renaming === t.id && !RO()) return `<form class="tc-rename" data-rnform="${t.id}"><input id="rn-input" value="${esc(t.label)}" maxlength="24" autocomplete="off" aria-label="New name for ${esc(t.label)}"><button type="submit" class="sm primary">Save</button><button type="button" class="sm" data-rncancel>Cancel</button></form><p class="err" id="rn-err" hidden style="padding:0 12px 8px"></p>`;
   let h = `<div class="tc-bar"><button type="button" class="tc-head" data-pick="${t.id}"${RO() ? "" : ' title="Drag onto another table to swap guests"'}><strong>${esc(t.label)}</strong><span class="hint">${meta}</span></button>`;
   if (!RO()) h += `<button type="button" class="tc-act" data-rename="${t.id}" aria-label="Rename ${esc(t.label)}">Rename</button><button type="button" class="tc-act" data-swap="${t.id}" aria-expanded="${ui.swapping === t.id}" aria-label="Swap ${esc(t.label)}'s guests with another table">Swap</button>${filled ? `<button type="button" class="tc-act tc-clear" data-cleart="${t.id}" aria-label="Clear ${esc(t.label)}">Clear</button>` : ""}`;
@@ -1475,11 +1475,11 @@ function renderGuests(chk){
   const dup = {}; skeys.forEach(k => { const n = subs[k][0].sub.toLowerCase(); dup[n] = (dup[n] || 0) + 1; });
   const sf = $("#g-sf"); sf.disabled = !skeys.length;
   sf.innerHTML = `<option value="">${skeys.length ? "All subgroups" : "No subgroups yet"}</option>` + skeys.map(k => { const m = subs[k], seated = m.filter(g => S.seating[g.id]), tabs = new Set(seated.map(g => S.seating[g.id].t)).size, n = m[0].sub;
-    return `<option value="${esc(k)}">${esc(n)}${dup[n.toLowerCase()] > 1 ? ` (${esc(gName(m[0].groupId))})` : ""} \u00B7 ${m.length}${tabs > 1 ? `, split` : seated.length < m.length ? `, ${m.length - seated.length} unseated` : ""}</option>`; }).join("");
+    return `<option value="${esc(k)}">${esc(n)}${dup[n.toLowerCase()] > 1 ? `, ${esc(gName(m[0].groupId))}` : ""} (${m.length}${tabs > 1 ? `, split` : seated.length < m.length ? `, ${m.length - seated.length} unseated` : ""})</option>`; }).join("");
   sf.value = ui.subFilter;
   const sm = ui.subFilter && subs[ui.subFilter];
   if (sm) { const at = {}; sm.forEach(g => { const a = S.seating[g.id]; if (a) at[a.t] = (at[a.t] || 0) + 1; }); const un = sm.filter(g => !S.seating[g.id]).length, ids = Object.keys(at).filter(getEl).sort((a, b) => at[b] - at[a]);
-    $("#g-subsum").innerHTML = `<div class="note${ids.length > 1 || un ? " warn" : " ok"}" role="status"><strong>${esc(sm[0].sub)}</strong>: ${ids.length ? `${ids.length > 1 ? "split over" : "all at"} ` + ids.map(id => `<button type="button" class="sm" data-subt="${id}">${esc(getEl(id).label)} (${at[id]})</button>`).join(" ") : "nobody seated yet"}${un ? ` \u00B7 ${un} unseated` : ""}. Their chairs are ringed on the plan.</div>`; }
+    $("#g-subsum").innerHTML = `<div class="note${ids.length > 1 || un ? " warn" : " ok"}" role="status"><strong>${esc(sm[0].sub)}</strong>: ${ids.length ? `${ids.length > 1 ? "split over" : "all at"} ` + ids.map(id => `<button type="button" class="sm" data-subt="${id}">${esc(getEl(id).label)} (${at[id]})</button>`).join(" ") : "nobody seated yet"}${un ? `, ${un} unseated` : ""}. Their chairs are ringed on the plan.</div>`; }
   else $("#g-subsum").innerHTML = "";
   const q = ui.guestQ.trim().toLowerCase();
   const list = S.guests.filter(g => (ui.filter === "all" || g.groupId === ui.filter) && (!ui.subFilter || g.sub && subKey(g) === ui.subFilter) && (!q || g.name.toLowerCase().includes(q) || (g.sub || "").toLowerCase().includes(q)) && (!ui.unseatedOnly || !S.seating[g.id])).sort((a, b) => a.name.localeCompare(b.name));
@@ -1490,14 +1490,14 @@ function renderGuests(chk){
   if (!g) { $("#g-card").innerHTML = ""; return; }
   const a = S.seating[g.id], t = a && getEl(a.t), why = (chk.why[g.id] || []).map(r => `${r.type === "apart" ? "Must not sit with" : "Must sit with"} ${esc((guestById(r.a === g.id ? r.b : r.a) || {}).name)}`);
   $("#g-card").innerHTML = `<div class="card" style="background:var(--field);padding:12px"><div class="row between"><strong>${esc(g.name)}</strong><button type="button" class="x" data-gact="close" aria-label="Close">\u00D7</button></div>
-    <p class="hint">${t ? `Seat ${seatId(t, a.s)}` : "Not seated yet"}${g.notes ? " \u00B7 " + esc(g.notes) : ""}</p>${t ? `<div><p class="eyebrow">Why this seat</p>${explainHtml(g.id, true)}</div>` : ""}
+    <p class="hint">${t ? `Seat ${seatId(t, a.s)}` : "Not seated yet"}${g.notes ?  ", " + esc(g.notes) : ""}</p>${t ? `<div><p class="eyebrow">Why this seat</p>${explainHtml(g.id, true)}</div>` : ""}
     <div class="fields">${field("Name", `<input id="g-name" value="${esc(g.name)}">`, true)}${field("Subgroup", `<input id="g-sub" value="${esc(g.sub || "")}" placeholder="MSoc friends">`, true)}${field("Group", `<select id="g-grp">${S.groups.map(x => `<option value="${x.id}"${x.id === g.groupId ? " selected" : ""}>${esc(x.name)}</option>`).join("")}</select>`)}${field("Tier", `<select id="g-tier">${TIERS.map((x, i) => `<option value="${i}"${i === (g.tier ?? 2) ? " selected" : ""}>${x}</option>`).join("")}</select>`)}</div>
     <div class="row">${t ? `<button type="button" data-gact="unseat">Unseat</button>` : ""}<button type="button" class="danger" data-gact="remove">Remove guest</button></div></div>`;
 }
 function renderRules(chk){
-  const name = id => esc((guestById(id) || {}).name || "?"), icon = {ok: "\u2713", broken: "!", pending: "\u00B7"};
+  const name = id => esc((guestById(id) || {}).name || "?"), icon = {ok: "\u2713", broken: "!", pending: "?"};
   const order = S.rules.map((r, i) => ({r, st: chk.status[i]})).sort((a, b) => (b.st === "broken") - (a.st === "broken"));
-  $("#r-list").innerHTML = (chk.status.includes("broken") ? '<button type="button" class="primary" data-fixrules style="margin-bottom:8px">Fix broken rules with the fewest moves</button>' : "") + (S.rules.length ? order.map(({r, st}) => `<div class="rule"><span class="st-${st}" aria-label="${st}">${icon[st]}</span><span><button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.a}">${name(r.a)}</button> <span class="hint">${r.type === "apart" ? "kept apart from" : "sits with"}</span> <button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.b}">${name(r.b)}</button>${r.note ? `<span class="hint"> \u00B7 ${esc(r.note)}</span>` : ""}</span><button type="button" class="x" data-rule-del="${r.id}" aria-label="Remove rule">\u00D7</button></div>`).join("")
+  $("#r-list").innerHTML = (chk.status.includes("broken") ? '<button type="button" class="primary" data-fixrules style="margin-bottom:8px">Fix broken rules with the fewest moves</button>' : "") + (S.rules.length ? order.map(({r, st}) => `<div class="rule"><span class="st-${st}" aria-label="${st}">${icon[st]}</span><span><button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.a}">${name(r.a)}</button> <span class="hint">${r.type === "apart" ? "kept apart from" : "sits with"}</span> <button type="button" class="x" style="padding:0;color:inherit" data-focus="${r.b}">${name(r.b)}</button>${r.note ? `<span class="hint">, ${esc(r.note)}</span>` : ""}</span><button type="button" class="x" data-rule-del="${r.id}" aria-label="Remove rule">\u00D7</button></div>`).join("")
     : `<p class="hint">No rules yet. Add one below.</p>`);
   const opts = `<option value="">Choose a guest</option>` + S.guests.slice().sort((a, b) => a.name.localeCompare(b.name)).map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join("");
   ["#r-a", "#r-b"].forEach(s => { const el = $(s), v = el.value; el.innerHTML = opts; el.value = guestById(v) ? v : ""; });
@@ -1613,7 +1613,7 @@ function showTip(e, chair){
   const t = getEl(chair.dataset.drop); if (!t) return hideTip();
   const i = +chair.dataset.seat, g = chair.dataset.cg && guestById(chair.dataset.cg), chk = Domain.check(S);
   const why = g ? (chk.why[g.id] || []).map(r => `${r.type === "apart" ? "Must not sit with" : "Must sit with"} ${esc((guestById(r.a === g.id ? r.b : r.a) || {}).name)}`) : [];
-  tip.innerHTML = `<b>${esc(seatId(t, i))}</b> ${g ? esc(g.name) : "Empty seat"}${g ? `<span>${esc(gName(g.groupId))}${g.sub ? " \u00B7 " + esc(g.sub) : ""}${g.tier < 2 ? " \u00B7 " + TIERS[g.tier] : ""}${g.notes ? " \u00B7 " + esc(g.notes) : ""}</span>` + explainHtml(g.id) : ""}`;
+  tip.innerHTML = `<b>${esc(seatId(t, i))}</b> ${g ? esc(g.name) : "Empty seat"}${g ? `<span>${esc(gName(g.groupId))}${g.sub ?  ", " + esc(g.sub) : ""}${g.tier < 2 ?  ", " + TIERS[g.tier] : ""}${g.notes ?  ", " + esc(g.notes) : ""}</span>` + explainHtml(g.id) : ""}`;
   tip.hidden = false;
   const r = area.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
   let x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
@@ -1866,7 +1866,7 @@ Domain.explain = function(s, gid){
 function explainHtml(gid, block){
   const list = Domain.explain(S, gid); if (!list.length) return "";
   if (block) return `<ul class="why">${list.map(x => `<li class="${x.bad ? "bad" : ""}">${esc(x.text)}</li>`).join("")}</ul>`;
-  return `<em class="whyt">Why here</em>` + list.slice(0, 5).map(x => `<span class="${x.bad ? "wbad" : ""}">\u00B7 ${esc(x.text)}</span>`).join("");
+  return `<em class="whyt">Why here</em>` + list.slice(0, 5).map(x => `<span class="${x.bad ? "wbad" : ""}">${esc(x.text)}</span>`).join("");
 }
 
 /* =====================================================================
@@ -2240,7 +2240,7 @@ function renderReviewCard(){
   if (!g) { box.hidden = true; return; }
   const a = S.seating[g.id], t = a && getEl(a.t);
   box.hidden = false;
-  box.innerHTML = `<div class="insp"><div class="row between" style="align-items:flex-start"><div><strong>${esc(g.name)}</strong><p class="hint">${t ? seatId(t, a.s) : "Not seated"} \u00B7 ${esc(gName(g.groupId))}</p></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>
+  box.innerHTML = `<div class="insp"><div class="row between" style="align-items:flex-start"><div><strong>${esc(g.name)}</strong><p class="hint">${t ? seatId(t, a.s) : "Not seated"}, ${esc(gName(g.groupId))}</p></div><button type="button" class="x" data-act="close" aria-label="Close">\u00D7</button></div>
     ${t ? `<div><p class="eyebrow">Why this seat</p>${explainHtml(g.id, true)}</div>` : ""}
     <div class="row"><button type="button" class="primary" data-act="flag">Flag a concern</button></div></div>`;
 }
@@ -2554,7 +2554,7 @@ Domain.metrics = function(s){
   return {guests: s.guests.length, seated, chairs, tables: tabs.length, used: new Set(Object.values(s.seating).map(a => a.t)).size,
     broken: chk.status.filter(x => x === "broken").length, lonely: chk.lonely.size, split, vips: vips.length, vipFront};
 };
-const metricLine = m => `${m.seated}/${m.guests} seated \u00B7 ${m.broken} broken \u00B7 ${m.split} circle${m.split === 1 ? "" : "s"} split`;
+const metricLine = m => `${m.seated}/${m.guests} seated, ${m.broken} broken, ${m.split} circle${m.split === 1 ? "" : "s"} split`;
 function scenDocById(id){ if (id === "current") return scenarioDoc(); const sc = (S.scenarios || []).find(x => x.id === id); return sc ? sc.doc : null; }
 function scenName(id){ if (id === "current") return "Current plan"; const sc = (S.scenarios || []).find(x => x.id === id); return sc ? sc.name : "?"; }
 function renderScen(){
@@ -2563,7 +2563,7 @@ function renderScen(){
     <div class="row" style="flex-wrap:nowrap"><input id="sc-name" placeholder="${esc(next)}" maxlength="40" aria-label="Scenario name"><button type="button" class="primary" id="sc-save">Save</button></div><p class="err" id="sc-err" hidden></p>`;
   if (list.length) {
     h += `<div class="scl">` + list.slice().sort((a, b) => b.savedAt - a.savedAt).map(sc => { const m = Domain.metrics(sc.doc);
-      return `<div class="scn"><div class="scn-t"><strong>${esc(sc.name)}</strong><span class="hint">Saved ${ago(sc.savedAt)} \u00B7 ${metricLine(m)}</span></div>
+      return `<div class="scn"><div class="scn-t"><strong>${esc(sc.name)}</strong><span class="hint">Saved ${ago(sc.savedAt)}, ${metricLine(m)}</span></div>
         <div class="row" style="gap:4px"><button type="button" class="sm" data-sccmp="${sc.id}">Compare</button><button type="button" class="sm" data-scopen="${sc.id}">Open</button><button type="button" class="sm danger" data-scdel="${sc.id}" aria-label="Delete ${esc(sc.name)}">Delete</button></div></div>`; }).join("") + `</div>`;
     if (list.length >= 2) h += `<button type="button" id="sc-cmp2">Compare two saved scenarios</button>`;
   } else h += `<p class="hint">No scenarios yet. Save one now, then rearrange and save another.</p>`;
