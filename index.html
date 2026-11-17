@@ -386,6 +386,8 @@ ul.why{font-size:13.5px;gap:4px}
 @media (prefers-reduced-motion:reduce){.tcard{transition:none}}
 .tc-bar{display:flex;align-items:stretch;background:var(--field)}
 .tc-bar .tc-head{flex:1;min-width:0}
+.tc-head strong{white-space:nowrap;flex:none}
+.tc-head .hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .tc-act{border:0;border-left:1px solid var(--line);border-radius:0;background:transparent;font-size:13px;font-weight:500;color:var(--muted);padding:6px 10px;min-height:44px}
 .tc-act:hover{color:var(--ink);background:var(--panel)}
 .tc-act[aria-expanded="true"]{color:var(--accent);background:var(--panel)}
@@ -768,7 +770,8 @@ const snapV = (v, s) => r2(Math.round(v / s) * s);
 const num = (v, f) => { const n = parseFloat(v); return Number.isFinite(n) ? n : f; };
 const normDeg = a => ((Math.round(a) % 360) + 360) % 360;
 const firstName = n => String(n).split(/[\s(]/)[0];
-const seatId = (t, i) => `${t.label}-${String(i + 1).padStart(2, "0")}`;
+/* "Table 3" keeps the short seat ID T3-03; other names use the name itself */
+const seatId = (t, i) => `${String(t.label).replace(/^Table (\d+)$/, "T$1")}-${String(i + 1).padStart(2, "0")}`;
 
 /* =====================================================================
    3. GEOMETRY (pure, metres). Elements have a centre x,y and rotation rot.
@@ -831,6 +834,7 @@ const Domain = {
   tables(s){ return s.elements.filter(e => e.type === "table"); },
   sanitize(s){
     s.settings = s.settings || {snap:.1, primeCount:4};
+    if (!s.settings.tableWords) { Domain.longNames(s); (s.scenarios || []).forEach(sc => sc && sc.doc && Domain.longNames(sc.doc)); s.settings.tableWords = true; }
     s.candidates = s.candidates || []; s.unmatched = s.unmatched || []; if (!Array.isArray(s.scenarios)) s.scenarios = [];
     if (!s.venue || !Array.isArray(s.venue.rows)) s.venue = defaultVenue();
     const tables = new Map(Domain.tables(s).map(t => [t.id, t])), gids = new Set(s.guests.map(g => g.id)), taken = new Set();
@@ -842,6 +846,9 @@ const Domain = {
     s.rules = s.rules.filter(r => gids.has(r.a) && gids.has(r.b) && r.a !== r.b);
     s.candidates = s.candidates.filter(r => gids.has(r.a) && gids.has(r.b) && r.a !== r.b);
   },
+  /* old plans named tables T1, T2...; show them as Table 1, Table 2 unless that name is taken */
+  longNames(d){ const ts = (d.elements || []).filter(e => e.type === "table"), used = new Set(ts.map(t => String(t.label).toLowerCase()));
+    ts.forEach(t => { const m = /^T(\d+)$/.exec(t.label || ""), n = m && "Table " + m[1]; if (n && !used.has(n.toLowerCase())) { used.delete(t.label.toLowerCase()); used.add(n.toLowerCase()); t.label = n; } }); },
   seatMap(s, t){ const arr = Array(t.seats).fill(null); s.guests.forEach(g => { const a = s.seating[g.id]; if (a && a.t === t.id && a.s < t.seats) arr[a.s] = g; }); return arr; },
   place(s, gid, tid, si){
     const t = s.elements.find(e => e.id === tid); if (!t) return "missing";
@@ -1037,7 +1044,7 @@ const Layout = {
   },
   namer(start = 1){ let k = start; const cnt = {};
     return (sp, it, label, anchor) => ({type: "table", shape: sp.shape, seats: sp.seats, x: r2(it.x), y: r2(it.y), rot: it.f.rot,
-      label: label || (sp.name ? `${sp.name} ${cnt[sp.name] = (cnt[sp.name] || 0) + 1}` : "T" + k++), anchor: !!anchor}); },
+      label: label || (sp.name ? `${sp.name} ${cnt[sp.name] = (cnt[sp.name] || 0) + 1}` : "Table " + k++), anchor: !!anchor}); },
   build(P){ return P.base === "hall" ? Layout.hall(P) : P.base === "upload" ? Layout.upload(P) : Layout.beach(P); },
   beach(P){
     const E = [], add = Layout.mk(E), tbl = Layout.namer(), {main, rest} = Layout.specs(P);
@@ -1130,7 +1137,7 @@ const selOne = () => { const a = selEls(); return a.length === 1 ? a[0] : null; 
 const guestById = id => S.guests.find(g => g.id === id);
 const gColor = (doc, id) => (doc.groups.find(g => g.id === id) || {}).color || "#888780";
 const gName = id => (S.groups.find(g => g.id === id) || {}).name || "";
-function nextTableName(){ let m = 0; S.elements.forEach(e => { const r = /^T(\d+)$/.exec(e.label || ""); if (r) m = Math.max(m, +r[1]); }); return "T" + (m + 1); }
+function nextTableName(){ let m = 0; S.elements.forEach(e => { const r = /^(?:T|Table )(\d+)$/.exec(e.label || ""); if (r) m = Math.max(m, +r[1]); }); return "Table " + (m + 1); }
 function makeEl(type, shape, p){
   const T = TYPES[type], sn = S.settings.snap || .1;
   const el = {id: uid(), type, x: snapV(p.x, sn), y: snapV(p.y, sn), rot: 0, locked: false, anchor: !!T.anchor, label: T.name};
@@ -1443,7 +1450,7 @@ function renderDrawer(){
   renderChart(chk); renderGuests(chk); renderRules(chk); renderFamily(); renderMine();
 }
 function cardHead(t, r, map){
-  const filled = map.filter(Boolean).length, meta = `${r.band === "main" ? "main table" : "rank " + r.rank}, ${filled}/${t.seats}`;
+  const filled = map.filter(Boolean).length, meta = `${filled}/${t.seats}, ${r.band === "main" ? "main table" : "rank " + r.rank}`;
   if (ui.renaming === t.id && !RO()) return `<form class="tc-rename" data-rnform="${t.id}"><input id="rn-input" value="${esc(t.label)}" maxlength="24" autocomplete="off" aria-label="New name for ${esc(t.label)}"><button type="submit" class="sm primary">Save</button><button type="button" class="sm" data-rncancel>Cancel</button></form><p class="err" id="rn-err" hidden style="padding:0 12px 8px"></p>`;
   let h = `<div class="tc-bar"><button type="button" class="tc-head" data-pick="${t.id}"${RO() ? "" : ' title="Drag onto another table to swap guests"'}><strong>${esc(t.label)}</strong><span class="hint">${meta}</span></button>`;
   if (!RO()) h += `<button type="button" class="tc-act" data-rename="${t.id}" aria-label="Rename ${esc(t.label)}">Rename</button><button type="button" class="tc-act" data-swap="${t.id}" aria-expanded="${ui.swapping === t.id}" aria-label="Swap ${esc(t.label)}'s guests with another table">Swap</button>${filled ? `<button type="button" class="tc-act tc-clear" data-cleart="${t.id}" aria-label="Clear ${esc(t.label)}">Clear</button>` : ""}`;
@@ -1941,7 +1948,7 @@ const Changes = {
     let best = null, bd = 99; N.forEach(x => { const d = Changes.lev(q, x.n); if (d < bd) { bd = d; best = x.g; } });
     return {err: `Couldn't find "${name}" on the guest list.${best && bd <= 3 ? ` Did you mean ${best.name}?` : ""}`};
   },
-  findTable(label, doc){ const q = Changes.norm(label).replace(/^table /, ""); return Domain.tables(doc).find(t => { const n = Changes.norm(t.label); return n === q || n === "t" + q; }) || null; },
+  findTable(label, doc){ const k = x => { const n = Changes.norm(x).replace(/^table /, ""); return /^\d+$/.test(n) ? "t" + n : n; }, q = k(label); return Domain.tables(doc).find(t => k(t.label) === q) || null; },
   /* built-in reader: one change per sentence */
   parse(text){
     const ops = []; let last = null;
@@ -2340,7 +2347,7 @@ function normalizeExtract(v, wUser){
     }
   });
   if (!out.length) return null;
-  out.filter(e => e.type === "table").sort((a, b) => (Math.round(a.y / 2) - Math.round(b.y / 2)) || (a.x - b.x)).forEach((t, i) => t.label = "T" + (i + 1));
+  out.filter(e => e.type === "table").sort((a, b) => (Math.round(a.y / 2) - Math.round(b.y / 2)) || (a.x - b.x)).forEach((t, i) => t.label = "Table " + (i + 1));
   if (!out.some(e => e.anchor)) { const d = out.find(e => e.type === "dance"); if (d) d.anchor = true; }
   const layer = e => TYPES[e.type].back ? 0 : e.type === "table" ? 2 : e.type === "tree" ? 3 : 1;
   out.sort((a, b) => layer(a) - layer(b));
