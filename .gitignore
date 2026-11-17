@@ -1,0 +1,8 @@
+# Guest data never goes in the repo
+seating-plan-*.json
+*.xlsx
+*.csv
+*.tsv
+.vercel
+.DS_Store
+node_modules
