@@ -345,6 +345,12 @@ ul.tight{font-size:14px;gap:6px}
 .rlimit{display:flex;flex-direction:column;gap:8px;padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--line)}
 .rlimit .rl-t{margin-top:6px}.rlimit .rl-t button{min-height:28px;padding:2px 8px;margin-right:4px}
 .hint.bad{color:var(--danger)}
+.gselbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;border-radius:8px;background:var(--accent-soft)}
+.gselbar strong{font-size:13.5px}
+.gtick{flex:none;width:16px;height:16px;border:1.5px solid var(--muted);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1;color:var(--on-accent)}
+.gbtn.picked{background:var(--accent-soft)}
+.gbtn.picked .gtick{background:var(--accent);border-color:var(--accent)}
+#g-selmode[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .gfilters{display:flex;flex-direction:column;gap:10px}
 .gf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gf-row .field{min-width:0}
@@ -664,10 +670,11 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
             <label class="field"><span>Group</span><select id="g-f"></select></label>
             <label class="field"><span>Subgroup</span><select id="g-sf"></select></label>
           </div>
-          <div class="gf-foot"><label class="check"><input id="g-un" type="checkbox"><span>Unseated only</span></label><button type="button" class="sm" id="g-clear" hidden>Clear filters</button></div>
+          <div class="gf-foot"><label class="check"><input id="g-un" type="checkbox"><span>Unseated only</span></label><span class="row" style="gap:6px"><button type="button" class="sm" id="g-clear" hidden>Clear filters</button><button type="button" class="sm" id="g-selmode" aria-pressed="false">Select several</button></span></div>
         </div>
         <div id="g-subsum"></div>
         <div id="g-card"></div>
+        <div class="gselbar" id="g-selbar" hidden></div>
         <p class="hint" id="g-hint"></p>
         <div class="glist" id="g-list" data-drop="pool"></div>
       </div>
@@ -1130,7 +1137,7 @@ function emptyDoc(){ return {version: SCHEMA_VERSION, step: 1, importText: "", e
 function loadState(){ try { const r = localStorage.getItem(STORAGE_KEY); if (!r) return null; const s = JSON.parse(r); return Domain.valid(s) ? s : null; } catch (e) { return null; } }
 let S = loadState() || emptyDoc();
 Domain.sanitize(S);
-const ui = {sel: new Set(), view: {x:-11, y:-4.6, w:35.5, h:24.6}, tab: "chart", chartQ: "", guestQ: "", filter: "all", subFilter: "", inspMore: false, guest: null, focus: null, names: "auto", drawer: true, parsed: null, preview: null};
+const ui = {sel: new Set(), view: {x:-11, y:-4.6, w:35.5, h:24.6}, tab: "chart", chartQ: "", guestQ: "", filter: "all", subFilter: "", inspMore: false, gsel: new Set(), gselMode: false, guest: null, focus: null, names: "auto", drawer: true, parsed: null, preview: null};
 const hist = {past: [], future: []};
 const snap = () => JSON.stringify(S, (k, v) => k === "scenarios" ? undefined : v);
 let saveT;
@@ -1394,7 +1401,7 @@ function renderTools(){
 function showNamesNow(){ return ui.names === "on" || (ui.names === "auto" && ui.view.w < 15); }
 function applyView(){ $("#plan").setAttribute("viewBox", vb(ui.view)); }
 const subKey = g => g.groupId + "|" + g.sub;
-function subHighlight(){ if (!ui.subFilter || S.step !== 4) return null; const m = S.guests.filter(g => g.sub && subKey(g) === ui.subFilter); return m.length ? new Set(m.map(g => g.id)) : null; }
+function subHighlight(){ if (S.step !== 4) return null; if (ui.gselMode && ui.gsel.size) return new Set(ui.gsel); if (!ui.subFilter) return null; const m = S.guests.filter(g => g.sub && subKey(g) === ui.subFilter); return m.length ? new Set(m.map(g => g.id)) : null; }
 function renderPlan(){ applyView(); $("#plan").innerHTML = canvasSvg(S, {p: "ed", showNames: showNamesNow(), focus: ui.focus, selection: true, view: ui.view, hl: subHighlight()}); }
 
 function swatch(type, shape){
@@ -1447,9 +1454,9 @@ function renderInspector(){
   box.innerHTML = h;
 }
 
-function gbtn(g, chk, label){
-  const a = S.seating[g.id], t = a && getEl(a.t);
-  return `<button type="button" class="gbtn${chk.bad.has(g.id) ? " bad" : ""}${ui.focus === g.id ? " on" : ""}" data-guest="${g.id}"><i class="dot" style="background:${gColor(S, g.groupId)}"></i><span class="nm">${esc(g.name)}</span>${label === false ? "" : `<span class="tag">${t ? seatId(t, a.s) : "no seat"}</span>`}</button>`;
+function gbtn(g, chk, label, picked){
+  const a = S.seating[g.id], t = a && getEl(a.t), pk = picked != null;
+  return `<button type="button" class="gbtn${chk.bad.has(g.id) ? " bad" : ""}${ui.focus === g.id && !pk ? " on" : ""}${picked ? " picked" : ""}" data-guest="${g.id}"${pk ? ` aria-pressed="${picked}"` : ""}>${pk ? `<span class="gtick" aria-hidden="true">${picked ? "\u2713" : ""}</span>` : ""}<i class="dot" style="background:${gColor(S, g.groupId)}"></i><span class="nm">${esc(g.name)}</span>${label === false ? "" : `<span class="tag">${t ? seatId(t, a.s) : "no seat"}</span>`}</button>`;
 }
 function renderDrawer(){
   tabVisibility();
@@ -1502,8 +1509,13 @@ function renderGuests(chk){
   const q = ui.guestQ.trim().toLowerCase();
   const list = S.guests.filter(g => (ui.filter === "all" || g.groupId === ui.filter) && (!ui.subFilter || g.sub && subKey(g) === ui.subFilter) && (!q || g.name.toLowerCase().includes(q) || (g.sub || "").toLowerCase().includes(q)) && (!ui.unseatedOnly || !S.seating[g.id])).sort((a, b) => a.name.localeCompare(b.name));
   $("#g-un").checked = !!ui.unseatedOnly; $("#g-clear").hidden = !(q || ui.filter !== "all" || ui.subFilter || ui.unseatedOnly); $("#g-total").textContent = `${S.guests.length} guests, ${S.guests.filter(g => !S.seating[g.id]).length} unseated`;
-  $("#g-hint").textContent = `${list.length} shown. Click a name to light up their seat, drag it onto a chair to move them, or drop it here to unseat them.`;
-  $("#g-list").innerHTML = list.length ? list.map(g => gbtn(g, chk)).join("") : `<span class="hint" style="padding:8px">${q ? "No guests match that search." : ui.unseatedOnly ? "Everyone has a seat." : "No guests yet."}</span>`;
+  ui.gsel.forEach(id => { if (!guestById(id)) ui.gsel.delete(id); });
+  const n = ui.gsel.size, allIn = list.length && list.every(g => ui.gsel.has(g.id));
+  $("#g-selmode").setAttribute("aria-pressed", String(ui.gselMode)); $("#g-selmode").textContent = ui.gselMode ? "Done selecting" : "Select several";
+  $("#g-selbar").hidden = !ui.gselMode;
+  $("#g-selbar").innerHTML = ui.gselMode ? `<strong>${n ? `${n} selected` : "Nobody selected"}</strong><span class="row" style="gap:6px"><button type="button" class="sm" data-gsel="${allIn ? "none-shown" : "all-shown"}">${allIn ? "Unselect shown" : `Select all ${list.length} shown`}</button>${n ? `<button type="button" class="sm" data-gsel="clear">Clear</button>` : ""}</span>` : "";
+  $("#g-hint").textContent = ui.gselMode ? `${list.length} shown. Tick guests, then drag any ticked name onto a table or chair to seat them together. Drop here to unseat them.` : `${list.length} shown. Click a name to light up their seat, drag it onto a chair to move them, or drop it here to unseat them. Ctrl or Cmd-click to pick several.`;
+  $("#g-list").innerHTML = list.length ? list.map(g => gbtn(g, chk, undefined, ui.gselMode ? ui.gsel.has(g.id) : null)).join("") : `<span class="hint" style="padding:8px">${q ? "No guests match that search." : ui.unseatedOnly ? "Everyone has a seat." : "No guests yet."}</span>`;
   const g = ui.guest && guestById(ui.guest);
   if (!g) { $("#g-card").innerHTML = ""; return; }
   const a = S.seating[g.id], t = a && getEl(a.t), why = (chk.why[g.id] || []).map(r => `${r.type === "apart" ? "Must not sit with" : "Must sit with"} ${esc((guestById(r.a === g.id ? r.b : r.a) || {}).name)}`);
@@ -1605,6 +1617,20 @@ function dropGuest(gid, target){
   pushHist(before); persist(); ui.focus = gid; renderEditor();
   const a = S.seating[gid]; toast(`${guestById(gid).name} is now at ${seatId(getEl(a.t), a.s)}.`);
 }
+/* several guests at once: fill empty chairs at the table, starting from the chair dropped on */
+function dropGuests(ids, target){
+  ids = ids.filter(guestById); const many = n => `${n} guest${n === 1 ? "" : "s"}`;
+  if (target.dataset.drop === "pool") { const on = ids.filter(id => S.seating[id]); if (on.length) { commit(() => on.forEach(id => delete S.seating[id])); toast(`Unseated ${many(on.length)}. Undo puts them back.`); } return; }
+  const tid = target.dataset.drop, t = getEl(tid); if (!t || t.type !== "table") return;
+  const map = Domain.seatMap(S, t), start = target.dataset.seat != null ? +target.dataset.seat : 0;
+  const move = ids.filter(id => !S.seating[id] || S.seating[id].t !== tid);
+  if (!move.length) return toast(`They're all at ${t.label} already.`);
+  const free = []; for (let k = 0; k < t.seats; k++) { const i = (start + k) % t.seats; if (!map[i]) free.push(i); }
+  if (free.length < move.length) return toast(`${t.label} has ${free.length} empty seat${free.length === 1 ? "" : "s"}, but ${many(move.length)} need one. Clear some seats or pick another table.`);
+  commit(() => move.forEach((id, k) => { S.seating[id] = {t: tid, s: free[k], manual: true}; }));
+  toast(`Moved ${many(move.length)} to ${t.label}.${move.length < ids.length ? ` ${many(ids.length - move.length)} already sat there.` : ""} Undo goes back.`);
+}
+function toggleGsel(id){ ui.gselMode = true; ui.gsel.has(id) ? ui.gsel.delete(id) : ui.gsel.add(id); renderGuests(Domain.check(S)); renderPlan(); }
 function addRule(aSel, bSel, typeSel, noteSel, errSel, kind){
   const a = $(aSel).value, b = $(bSel).value;
   if (!a || !b) return showErr(errSel, "Choose both guests first.");
@@ -1669,8 +1695,14 @@ $("#palette").addEventListener("pointerdown", e => { const b = e.target.closest(
   drag = {kind: "add", type: b.dataset.add, shape: b.dataset.shape || null, sx: e.clientX, sy: e.clientY, moved: false, label: b.textContent.trim()}; });
 $("#palette").addEventListener("click", e => { const b = e.target.closest("[data-add]"); if (b && e.detail === 0) addElement(b.dataset.add, b.dataset.shape || null, viewCenter()); });
 $("#side").addEventListener("pointerdown", e => { const c = e.target.closest("[data-guest]"); if (!c || e.button > 0 || RO()) return; e.preventDefault();
-  const g = guestById(c.dataset.guest); drag = {kind: "guest", id: g.id, sx: e.clientX, sy: e.clientY, moved: false, label: g.name, from: "list"}; });
-$("#side").addEventListener("click", e => { const c = e.target.closest("[data-guest]"); if (c && (e.detail === 0 || RO())) focusGuest(c.dataset.guest, "list"); });
+  const g = guestById(c.dataset.guest), inList = !!c.closest("#g-list"), group = inList && ui.gselMode && ui.gsel.has(g.id) && ui.gsel.size > 1 ? [...ui.gsel] : null;
+  drag = {kind: "guest", id: g.id, ids: group, sx: e.clientX, sy: e.clientY, moved: false, label: group ? `${group.length} guests` : g.name, from: "list", pick: inList && (ui.gselMode || e.metaKey || e.ctrlKey || e.shiftKey)}; });
+$("#side").addEventListener("click", e => { const c = e.target.closest("[data-guest]"); if (!c || !(e.detail === 0 || RO())) return;
+  if (!RO() && ui.gselMode && c.closest("#g-list")) return toggleGsel(c.dataset.guest); focusGuest(c.dataset.guest, "list"); });
+$("#g-selmode").addEventListener("click", () => { ui.gselMode = !ui.gselMode; if (!ui.gselMode) ui.gsel.clear(); renderGuests(Domain.check(S)); renderPlan(); });
+$("#g-selbar").addEventListener("click", e => { const b = e.target.closest("[data-gsel]"); if (!b) return; const shown = $$("#g-list [data-guest]").map(x => x.dataset.guest);
+  if (b.dataset.gsel === "all-shown") shown.forEach(id => ui.gsel.add(id)); else if (b.dataset.gsel === "none-shown") shown.forEach(id => ui.gsel.delete(id)); else ui.gsel.clear();
+  renderGuests(Domain.check(S)); renderPlan(); });
 
 window.addEventListener("pointermove", e => {
   if (!drag) return;
@@ -1694,9 +1726,9 @@ window.addEventListener("pointerup", e => {
   if (d.kind === "tswap") { if (!d.moved) return; const el = document.elementFromPoint(e.clientX, e.clientY), card = el && el.closest(".tcard"), pl = el && el.closest("#plan [data-drop]");
     const to = card ? card.id.slice(3) : pl ? pl.dataset.drop : null; if (to && to !== d.id) swapTables(d.id, to); return; }
   if (d.kind === "guest") {
-    if (!d.moved) return focusGuest(d.id, d.from);
+    if (!d.moved) return d.pick ? toggleGsel(d.id) : focusGuest(d.id, d.from);
     const el = document.elementFromPoint(e.clientX, e.clientY), t = el && (el.closest("[data-seat]") || el.closest("[data-drop]"));
-    if (t) dropGuest(d.id, t);
+    if (t) d.ids ? dropGuests(d.ids, t) : dropGuest(d.id, t);
   }
 });
 window.addEventListener("pointercancel", () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; setHover(null); });
