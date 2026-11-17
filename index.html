@@ -342,6 +342,12 @@ ul.tight{font-size:14px;gap:6px}
 .insp .ih .hint{white-space:nowrap}
 .insp button.more{margin-left:auto;color:var(--muted)}
 .insp-more{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:10px}
+.gfilters{display:flex;flex-direction:column;gap:10px}
+.gf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gf-row .field{min-width:0}
+.gf-row select{width:100%;min-width:0;text-overflow:ellipsis}
+.gf-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:32px}
+.gf-foot .check{align-items:center}.gf-foot .check input{margin-top:0}
 #g-subsum .note{line-height:2}
 #g-subsum .note button{min-height:28px;padding:2px 8px;margin:0 2px}
 .tip{font-size:13.5px;padding:10px 12px;max-width:300px;border-radius:var(--r-sm)}
@@ -647,15 +653,17 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
           <div class="row"><button type="button" class="primary" id="ga-add">Add guest</button><button type="button" id="ga-cancel">Done</button></div>
           <p class="err" id="ga-err" hidden></p>
         </div>
-        <div class="fields">
-          <label class="field"><span>Search names or subgroups</span><input id="g-q" type="search" placeholder="Yee Hong or MSoc" autocomplete="off"></label>
-          <label class="field"><span>Group</span><select id="g-f"></select></label>
-          <label class="field full"><span>Subgroup</span><select id="g-sf"></select></label>
+        <div class="gfilters">
+          <input id="g-q" type="search" placeholder="Search names or subgroups" autocomplete="off" aria-label="Search names or subgroups">
+          <div class="gf-row">
+            <label class="field"><span>Group</span><select id="g-f"></select></label>
+            <label class="field"><span>Subgroup</span><select id="g-sf"></select></label>
+          </div>
+          <div class="gf-foot"><label class="check"><input id="g-un" type="checkbox"><span>Unseated only</span></label><button type="button" class="sm" id="g-clear" hidden>Clear filters</button></div>
         </div>
         <div id="g-subsum"></div>
         <div id="g-card"></div>
         <p class="hint" id="g-hint"></p>
-        <label class="check"><input id="g-un" type="checkbox"><span>Unseated only</span></label>
         <div class="glist" id="g-list" data-drop="pool"></div>
       </div>
       <div class="panel" data-panel="rules" hidden>
@@ -1467,7 +1475,7 @@ function renderGuests(chk){
   const dup = {}; skeys.forEach(k => { const n = subs[k][0].sub.toLowerCase(); dup[n] = (dup[n] || 0) + 1; });
   const sf = $("#g-sf"); sf.disabled = !skeys.length;
   sf.innerHTML = `<option value="">${skeys.length ? "All subgroups" : "No subgroups yet"}</option>` + skeys.map(k => { const m = subs[k], seated = m.filter(g => S.seating[g.id]), tabs = new Set(seated.map(g => S.seating[g.id].t)).size, n = m[0].sub;
-    return `<option value="${esc(k)}">${esc(n)}${dup[n.toLowerCase()] > 1 || ui.filter === "all" && S.groups.length > 1 ? ` (${esc(gName(m[0].groupId))})` : ""} \u00B7 ${m.length}${tabs > 1 ? `, split over ${tabs} tables` : seated.length < m.length ? `, ${m.length - seated.length} unseated` : ""}</option>`; }).join("");
+    return `<option value="${esc(k)}">${esc(n)}${dup[n.toLowerCase()] > 1 ? ` (${esc(gName(m[0].groupId))})` : ""} \u00B7 ${m.length}${tabs > 1 ? `, split` : seated.length < m.length ? `, ${m.length - seated.length} unseated` : ""}</option>`; }).join("");
   sf.value = ui.subFilter;
   const sm = ui.subFilter && subs[ui.subFilter];
   if (sm) { const at = {}; sm.forEach(g => { const a = S.seating[g.id]; if (a) at[a.t] = (at[a.t] || 0) + 1; }); const un = sm.filter(g => !S.seating[g.id]).length, ids = Object.keys(at).filter(getEl).sort((a, b) => at[b] - at[a]);
@@ -1475,7 +1483,7 @@ function renderGuests(chk){
   else $("#g-subsum").innerHTML = "";
   const q = ui.guestQ.trim().toLowerCase();
   const list = S.guests.filter(g => (ui.filter === "all" || g.groupId === ui.filter) && (!ui.subFilter || g.sub && subKey(g) === ui.subFilter) && (!q || g.name.toLowerCase().includes(q) || (g.sub || "").toLowerCase().includes(q)) && (!ui.unseatedOnly || !S.seating[g.id])).sort((a, b) => a.name.localeCompare(b.name));
-  $("#g-un").checked = !!ui.unseatedOnly; $("#g-total").textContent = `${S.guests.length} guests, ${S.guests.filter(g => !S.seating[g.id]).length} unseated`;
+  $("#g-un").checked = !!ui.unseatedOnly; $("#g-clear").hidden = !(q || ui.filter !== "all" || ui.subFilter || ui.unseatedOnly); $("#g-total").textContent = `${S.guests.length} guests, ${S.guests.filter(g => !S.seating[g.id]).length} unseated`;
   $("#g-hint").textContent = `${list.length} shown. Click a name to light up their seat, drag it onto a chair to move them, or drop it here to unseat them.`;
   $("#g-list").innerHTML = list.length ? list.map(g => gbtn(g, chk)).join("") : `<span class="hint" style="padding:8px">${q ? "No guests match that search." : ui.unseatedOnly ? "Everyone has a seat." : "No guests yet."}</span>`;
   const g = ui.guest && guestById(ui.guest);
@@ -1807,6 +1815,7 @@ $("#chart-list").addEventListener("keydown", e => { if (e.target.id === "rn-inpu
 $("#side").addEventListener("pointerdown", e => { const h = e.target.closest(".tc-head[data-pick]"); if (!h || e.button > 0 || RO()) return; const t = getEl(h.dataset.pick); if (t) drag = {kind: "tswap", id: t.id, sx: e.clientX, sy: e.clientY, moved: false, label: `Swap ${t.label} with\u2026`}; });
 $("#chart-list").addEventListener("click", e => { const c = e.target.closest("[data-cleart]"); if (c) return clearTable(c.dataset.cleart); const h = e.target.closest("[data-pick]"); if (!h) return; const t = getEl(h.dataset.pick); if (!t) return;
   ui.sel = new Set([t.id]); const v = ui.view; if (t.x < v.x || t.x > v.x + v.w || t.y < v.y || t.y > v.y + v.h) { v.x = t.x - v.w/2; v.y = t.y - v.h/2; } renderEditor(); });
+$("#g-clear").addEventListener("click", () => { ui.guestQ = ""; $("#g-q").value = ""; ui.filter = "all"; ui.subFilter = ""; ui.unseatedOnly = false; renderGuests(Domain.check(S)); renderPlan(); });
 $("#g-un").addEventListener("change", e => { ui.unseatedOnly = e.target.checked; renderGuests(Domain.check(S)); });
 $("#g-q").addEventListener("input", e => { ui.guestQ = e.target.value; renderGuests(Domain.check(S)); });
 $("#g-f").addEventListener("change", e => { ui.filter = e.target.value; renderGuests(Domain.check(S)); renderPlan(); });
