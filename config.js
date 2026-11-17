@@ -3,7 +3,7 @@
    The anon key is safe to publish: Row Level Security limits the plan to
    its two members. Never put the service-role key here. */
 window.SEATPLAN_CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: "",
+  SUPABASE_URL: "https://aehewkvtqcjfimdysihv.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_N7oigJrEa1AvaMZi3sGaSA_kWMew7iv",
   PLAN_ID: "our-wedding"
 };
