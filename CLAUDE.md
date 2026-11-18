@@ -168,7 +168,15 @@ Plan document (also the layout file):
 - Browser cache for sync: localStorage `seaside-sync-v1` = `{plan, rev, dirty, fresh, email, json}`. `json` holds the full plan including scenarios.
 - Sign out clears this browser's copy of the plan so no guest names are left behind.
 
-## Landing page and name
+## Brand: Seat The Plan
 
-- The app is called Placecard. The front page lives in `#gate` (section `15b. LANDING`): `showLanding("signin")` when online sync is on and nobody is signed in, `showLanding("start")` for a brand-new local plan. It never shows guest data.
+- Name: Seat The Plan. Tagline: "Less seating stress. More wedding bliss." Script line: "Make room for the magic."
+- Palette: sage #6B8F71 (buttons use #5E8164 for contrast), olive #A9B8A0, blush #E8C9C3, cream #F8F6EF, beige #E6DDCF, ink #3D4637.
+- Type: Fraunces for headings and the wordmark, Nunito Sans for body and UI, Dancing Script only for the script line.
+- Mascot: Mr Table (`mascotSvg({mood, sign})`, moods happy, wink, think, cheer). Pill buttons, line icons.
+- The front page lives in `#gate` (section `15b. LANDING`): `showLanding("signin")` when online sync is on and nobody is signed in, `showLanding("start")` for a brand-new local plan. It never shows guest data.
 - Storage keys still start with `seaside-`. Don't rename them, or saved plans in browsers are lost.
+
+## Commits and pull requests
+
+- No Claude attribution: no Co-Authored-By, Claude-Session or "Generated with Claude Code" lines in commit messages or PR descriptions.

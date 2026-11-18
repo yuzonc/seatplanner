@@ -5,42 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <style>body{margin:0}</style>
-<title>Placecard</title>
-<meta name="description" content="A calm, shared wedding seating planner.">
+<title>Seat The Plan</title>
+<meta name="description" content="Less seating stress. More wedding bliss.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%235E8164'/%3E%3Cpath d='M15 28c0-4 8-7 17-7s17 3 17 7c0 0 2 12 3 17-3 2-6 1-8 0-3 2-6 2-8 0-3 2-6 2-8 0-3 2-6 2-8 0-2 1-5 2-8 0 1-5 3-17 3-17z' fill='none' stroke='%23fff' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M26 35q2-2 4 0M34 35q2-2 4 0M29 40q3 3 6 0' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M32 15c-2-3-6-1-4 2l4 4 4-4c2-3-2-5-4-2z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F8F6EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=Dancing+Script:wght@500&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout concept: a four-step setup (guests, rules, venue) that hands off to a canvas-first editor.
    The plan fills the screen; adding, editing and lists live in a + popover, a floating inspector and one side drawer. */
 :root{
-  --bg:#F2F4F3;--panel:#FFFFFF;--field:#F7F9F8;--ink:#17201E;--muted:#5A6661;--line:#D8DFDC;--shadow:rgba(20,32,30,.14);
-  --accent:#1D6C75;--on-accent:#FFFFFF;--accent-soft:#E0EFF0;--danger:#BF3F2A;--danger-soft:#FBE8E4;--ok:#2C7A4C;--ok-soft:#E3F2E8;--warn:#9E6410;--warn-soft:#FBF0DC;--focus:#D9480F;
-  --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-display:"Space Grotesk","Inter",system-ui,sans-serif;
+  --bg:#F8F6EF;--panel:#FFFEFB;--field:#F4F1E9;--ink:#3D4637;--muted:#6B7165;--line:#E6DDCF;--shadow:rgba(70,60,40,.14);
+  --accent:#5E8164;--on-accent:#FFFFFF;--accent-soft:#E7EEE3;--danger:#BF3F2A;--danger-soft:#FBE8E4;--ok:#2C7A4C;--ok-soft:#E3F2E8;--warn:#9E6410;--warn-soft:#FBF0DC;--focus:#D9480F;
+  --font-ui:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-display:"Fraunces",Georgia,serif;
   --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
   --plan-bg:#ECEFED;--grid:#DCE2DF;--floor:#E3E1DA;--walk:#F2D8D1;--walk-ink:#6B2D22;--water:#BBD7EA;--water-ink:#1C4D6D;
   --stage:#BAB7AE;--dance:#F8F6F1;--box-ink:#2A2E2C;--buffet:#CAD6F2;--buffet-ink:#24386A;--tree:#BEDBAD;--tree-ink:#2E521F;
   --rock:#C6C8C6;--rock-ink:#3B413F;--label-ink:#17201E;
   --t-main:#F2C1AC;--t-main-line:#983D1D;--t-prime:#CFCBF4;--t-prime-line:#4E45AF;--t-std:#D8D6CE;--t-std-line:#5E5D59;--t-ink:#1E1C29;
-  --chair:#FFFFFF;--chair-line:#8A908D;--sel:#1D6C75;
+  --chair:#FFFFFF;--chair-line:#8A908D;--sel:#5E8164;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0F1413;--panel:#161C1B;--field:#1B2221;--ink:#E5EBE9;--muted:#97A39F;--line:#29322F;--shadow:rgba(0,0,0,.5);
-  --accent:#5CB5BD;--on-accent:#0B1A1B;--accent-soft:#163538;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
+  --bg:#151812;--panel:#1C2019;--field:#22271F;--ink:#ECE9DF;--muted:#A3A898;--line:#30362B;--shadow:rgba(0,0,0,.5);
+  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
   --plan-bg:#131918;--grid:#1E2725;--floor:#232927;--walk:#4A2C27;--walk-ink:#F2CFC7;--water:#1D394D;--water-ink:#BEDCF0;
   --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#26345A;--buffet-ink:#CAD6F5;--tree:#29431F;--tree-ink:#CCE6BD;
   --rock:#3A3F3D;--rock-ink:#D0D5D3;--label-ink:#E5EBE9;
   --t-main:#6A331F;--t-main-line:#F0A88A;--t-prime:#3A3577;--t-prime-line:#B6B0F2;--t-std:#3C3B37;--t-std-line:#A7A59D;--t-ink:#F1F0EC;
-  --chair:#29302E;--chair-line:#7C8683;--sel:#5CB5BD;color-scheme:dark}}
+  --chair:#29302E;--chair-line:#7C8683;--sel:#9DBFA3;color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0F1413;--panel:#161C1B;--field:#1B2221;--ink:#E5EBE9;--muted:#97A39F;--line:#29322F;--shadow:rgba(0,0,0,.5);
-  --accent:#5CB5BD;--on-accent:#0B1A1B;--accent-soft:#163538;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
+  --bg:#151812;--panel:#1C2019;--field:#22271F;--ink:#ECE9DF;--muted:#A3A898;--line:#30362B;--shadow:rgba(0,0,0,.5);
+  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
   --plan-bg:#131918;--grid:#1E2725;--floor:#232927;--walk:#4A2C27;--walk-ink:#F2CFC7;--water:#1D394D;--water-ink:#BEDCF0;
   --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#26345A;--buffet-ink:#CAD6F5;--tree:#29431F;--tree-ink:#CCE6BD;
   --rock:#3A3F3D;--rock-ink:#D0D5D3;--label-ink:#E5EBE9;
   --t-main:#6A331F;--t-main-line:#F0A88A;--t-prime:#3A3577;--t-prime-line:#B6B0F2;--t-std:#3C3B37;--t-std-line:#A7A59D;--t-ink:#F1F0EC;
-  --chair:#29302E;--chair-line:#7C8683;--sel:#5CB5BD;color-scheme:dark}
+  --chair:#29302E;--chair-line:#7C8683;--sel:#9DBFA3;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%;background:var(--bg);color:var(--ink)}
 body{font-family:var(--font-ui);font-size:14px;line-height:1.45;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -56,7 +58,7 @@ p{margin:0}
 button,select,input,textarea{font:inherit;color:inherit}
 button,.btn{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;line-height:1.2;display:inline-flex;align-items:center;gap:6px}
 button:hover,.btn:hover{border-color:var(--muted)}
-button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:500}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600;border-radius:999px}
 button.ghost{border-color:transparent;background:transparent}
 button.danger{color:var(--danger)}
 button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
@@ -457,76 +459,83 @@ body.cmp-open{overflow:hidden}
 .no-changebox [data-fixrules]{display:none!important}
 /* shared sync: sign-in screen and account row */
 .gated #shell{display:none!important}
-/* ---------- Landing ---------- */
-:root{--ld-paper:#F7F2EA;--ld-ink:#1D1B17;--ld-muted:#6B655B;--ld-line:#E3DACB;--ld-accent:#1D6C75;--ld-coral:#D9785B;--ld-gold:#C9A04E;--ld-plum:#8A5A8C;--ld-sage:#7FA27E;--ld-table:#FFFDF8;--ld-chair:#EFE7DA;--ld-serif:"Fraunces",Georgia,"Times New Roman",serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ld-paper:#14130F;--ld-ink:#F1EBE0;--ld-muted:#A69E90;--ld-line:#2E2A23;--ld-accent:#6BC0C8;--ld-coral:#E89478;--ld-gold:#D9B66A;--ld-plum:#B98BBB;--ld-sage:#9CC29A;--ld-table:#1E1C17;--ld-chair:#2A261F}}
-:root[data-theme="dark"]{--ld-paper:#14130F;--ld-ink:#F1EBE0;--ld-muted:#A69E90;--ld-line:#2E2A23;--ld-accent:#6BC0C8;--ld-coral:#E89478;--ld-gold:#D9B66A;--ld-plum:#B98BBB;--ld-sage:#9CC29A;--ld-table:#1E1C17;--ld-chair:#2A261F}
-html.gated,html.gated body{background:var(--ld-paper)}
-.landing{position:relative;max-width:1180px;margin:0 auto;color:var(--ld-ink);padding:8px 8px 40px;display:flex;flex-direction:column;gap:clamp(48px,8vw,96px)}
-.landing::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60vw 50vw at 85% 15%,color-mix(in srgb,var(--ld-coral) 12%,transparent),transparent 70%),radial-gradient(50vw 40vw at 5% 90%,color-mix(in srgb,var(--ld-accent) 10%,transparent),transparent 70%),var(--ld-paper)}
-.ld-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
-.ld-logo{display:inline-flex;align-items:center;gap:9px;font-family:var(--ld-serif);font-size:22px;font-weight:600;letter-spacing:-.01em}
-.ld-logo .logo{width:24px;height:24px;color:var(--ld-accent)}
-.ld-nav-r{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ld-muted)}
-.ld-dot{width:7px;height:7px;border-radius:50%;background:var(--ld-sage);box-shadow:0 0 0 4px color-mix(in srgb,var(--ld-sage) 22%,transparent)}
-.ld-hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:clamp(24px,5vw,72px);align-items:center;min-height:min(62vh,600px)}
+/* ---------- Landing (Seat The Plan brand: sage, olive, blush, cream, beige; Fraunces + Nunito Sans) ---------- */
+:root{--sp-sage:#6B8F71;--sp-sage-d:#5E8164;--sp-olive:#A9B8A0;--sp-blush:#E8C9C3;--sp-cream:#F8F6EF;--sp-beige:#E6DDCF;--sp-ink:#3D4637;--sp-muted:#6B7165;--sp-card:#FFFEFB;--sp-paper:#FBF8F2;--sp-cloth:#F7EBDF;--sp-cloth-line:#A88E6E;--sp-script:"Dancing Script","Brush Script MT",cursive;--sp-serif:"Fraunces",Georgia,serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sp-sage:#9DBFA3;--sp-sage-d:#9DBFA3;--sp-olive:#7D8D74;--sp-blush:#D9A8A0;--sp-cream:#151812;--sp-beige:#30362B;--sp-ink:#ECE9DF;--sp-muted:#A3A898;--sp-card:#1C2019;--sp-paper:#151812}}
+:root[data-theme="dark"]{--sp-sage:#9DBFA3;--sp-sage-d:#9DBFA3;--sp-olive:#7D8D74;--sp-blush:#D9A8A0;--sp-cream:#151812;--sp-beige:#30362B;--sp-ink:#ECE9DF;--sp-muted:#A3A898;--sp-card:#1C2019;--sp-paper:#151812}
+html.gated,html.gated body{background:var(--sp-paper)}
+.landing{position:relative;max-width:1180px;margin:0 auto;color:var(--sp-ink);font-family:"Nunito Sans",system-ui,sans-serif;padding:4px 8px 32px;display:flex;flex-direction:column;gap:clamp(56px,8vw,104px)}
+.landing::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55vw 45vw at 88% 30%,color-mix(in srgb,var(--sp-olive) 22%,transparent),transparent 70%),radial-gradient(40vw 35vw at 0% 100%,color-mix(in srgb,var(--sp-blush) 30%,transparent),transparent 70%),var(--sp-paper)}
+.landing h1,.landing h2,.landing h3{font-family:var(--sp-serif);color:var(--sp-ink)}
+.ld-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0}
+.ld-logo{display:inline-flex;align-items:center;gap:10px;font-family:var(--sp-serif);font-size:24px;font-weight:700;letter-spacing:-.01em}
+.ld-logo-m{width:46px;height:46px;display:inline-block}.ld-logo-m svg{width:100%;height:100%}
+.ld-heart,.wm-heart{font-family:"Nunito Sans",sans-serif;color:var(--sp-sage);font-weight:400;margin-left:4px;font-size:.8em}
+.ld-links{display:flex;align-items:center;gap:26px;font-size:14.5px}
+.ld-links a{color:var(--sp-ink);text-decoration:none;opacity:.85}.ld-links a:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+.landing button.primary,.landing .ld-pill{background:var(--sp-sage-d);border:1px solid var(--sp-sage-d);color:#fff;border-radius:999px;padding:10px 20px;font-weight:700;white-space:nowrap;box-shadow:0 6px 16px -8px color-mix(in srgb,var(--sp-sage-d) 70%,transparent)}
+.landing button.primary:hover{filter:brightness(.94)}
+.ld-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(24px,4vw,56px);align-items:center}
 .ld-copy{display:flex;flex-direction:column;gap:22px;max-width:560px}
-.ld-kicker{margin:0;font-size:12.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ld-accent)}
-.landing h1{font-family:var(--ld-serif);font-weight:400;font-size:clamp(46px,7.2vw,92px);line-height:.98;letter-spacing:-.035em;margin:0;font-variation-settings:"opsz" 144}
-.landing h1 em{font-style:italic;color:var(--ld-coral);font-weight:400}
-.ld-lede{margin:0;font-size:clamp(16px,1.5vw,18.5px);line-height:1.6;color:var(--ld-muted);max-width:30em}
+.ld-kicker,.ld-eyebrow{margin:0;font-size:12.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--sp-sage-d)}
+.landing h1 .ld-l{display:block}
+@media (min-width:901px){.landing h1 .ld-l{white-space:nowrap}}
+.landing h1{font-weight:600;font-size:clamp(38px,4.3vw,62px);line-height:1.04;letter-spacing:-.025em;margin:0;font-variation-settings:"opsz" 144}
+.ld-h-heart{display:inline-block;margin-left:10px;color:var(--sp-sage);font-family:"Nunito Sans",sans-serif;font-weight:300;font-size:.7em;transform:rotate(-10deg) translateY(-.08em)}
+.ld-lede{margin:0;font-size:clamp(16px,1.45vw,18.5px);line-height:1.6;color:var(--sp-muted);max-width:30em}
 .ld-cta{display:none;flex-direction:column;gap:12px}
 .landing[data-mode="signin"] .ld-cta[data-for="signin"],.landing[data-mode="start"] .ld-cta[data-for="start"]{display:flex}
-.ld-form{display:flex;gap:8px;padding:6px;border:1px solid var(--ld-line);border-radius:14px;background:var(--ld-table);box-shadow:0 10px 30px -12px rgba(60,40,10,.18);max-width:480px}
-.ld-form input{flex:1;min-width:0;border:0;background:transparent;font-size:15.5px;padding:10px 10px;color:var(--ld-ink)}
-.ld-form input:focus{outline:none}.ld-form:focus-within{border-color:var(--ld-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--ld-accent) 20%,transparent),0 10px 30px -12px rgba(60,40,10,.18)}
-.landing button.primary{background:var(--ld-ink);border-color:var(--ld-ink);color:var(--ld-paper);border-radius:10px;padding:10px 18px;font-weight:600;white-space:nowrap}
-.landing button.primary:hover{background:var(--ld-accent);border-color:var(--ld-accent)}
-.landing .ld-big{min-height:48px;padding:12px 22px;font-size:15.5px;border-radius:12px}
-.landing label.btn.ld-big{background:transparent;border:1px solid var(--ld-line);color:var(--ld-ink);display:inline-flex;align-items:center;font-weight:500}
-.landing label.btn.ld-big:hover{border-color:var(--ld-ink)}
-.ld-fine{margin:0;font-size:13px;color:var(--ld-muted)}
-.landing button.linkish{color:var(--ld-muted);font-size:13px}
-.ld-sent{display:flex;flex-direction:column;gap:8px;max-width:480px}
-.ld-art{margin:0;position:relative;container-type:inline-size;aspect-ratio:1/1;width:100%;max-width:560px;justify-self:center}
-.ld-art svg{width:100%;height:100%;overflow:visible}
-.ld-art .tbl{fill:var(--ld-table);stroke:var(--ld-line);stroke-width:1.5}
-.ld-art .tname{font-family:var(--ld-serif);font-style:italic;font-size:17px;fill:var(--ld-ink)}
-.ld-art .tsub{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;fill:var(--ld-muted)}
-.ld-art .ch{fill:var(--ld-chair);stroke:var(--ld-line);stroke-width:1.2;transform-box:fill-box;transform-origin:center;animation:ld-sit 7s cubic-bezier(.2,.8,.2,1) infinite;animation-delay:calc(var(--i) * .16s)}
-@keyframes ld-sit{0%,4%{fill:var(--ld-chair);transform:scale(.85)}10%,86%{fill:var(--c);transform:scale(1)}94%,100%{fill:var(--ld-chair);transform:scale(.85)}}
-.ld-art .ring{fill:none;stroke:var(--ld-line);stroke-dasharray:2 5;stroke-width:1}
-.ld-card{position:absolute;right:-1%;bottom:3%;white-space:nowrap;background:var(--ld-table);border:1px solid var(--ld-line);border-radius:6px;padding:clamp(12px,3.2cqw,18px) clamp(16px,4.4cqw,26px) clamp(10px,2.6cqw,14px);box-shadow:0 24px 50px -20px rgba(60,40,10,.35),0 2px 6px rgba(60,40,10,.06);transform:rotate(-5deg);animation:ld-float 6s ease-in-out infinite;text-align:center}
-.ld-card::before{content:"";position:absolute;left:10px;right:10px;top:10px;bottom:10px;border:1px solid color-mix(in srgb,var(--ld-gold) 55%,transparent);border-radius:3px;pointer-events:none}
-.ld-card b{display:block;font-family:var(--ld-serif);font-style:italic;font-weight:400;font-size:clamp(18px,5.2cqw,30px);line-height:1.1;margin:4px 0 8px}
-.ld-card span{display:block;font-family:var(--font-mono);font-size:clamp(8.5px,1.9cqw,10.5px);letter-spacing:.14em;text-transform:uppercase;color:var(--ld-muted)}
-@keyframes ld-float{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-4deg) translateY(-8px)}}
-.ld-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,4vw,48px);border-top:1px solid var(--ld-line);padding-top:clamp(28px,4vw,44px)}
-.ld-steps li{display:flex;flex-direction:column;gap:10px}
-.ld-num{font-family:var(--ld-serif);font-style:italic;font-size:44px;line-height:1;color:var(--ld-coral)}
-.ld-steps h2{font-family:var(--ld-serif);font-weight:500;font-size:24px;letter-spacing:-.01em}
-.ld-steps p,.ld-feats span{margin:0;color:var(--ld-muted);font-size:15px;line-height:1.55}
-.ld-feats{list-style:none;margin:0;padding:clamp(24px,4vw,40px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 40px;background:var(--ld-table);border:1px solid var(--ld-line);border-radius:22px}
-.ld-feats li{display:flex;gap:14px;align-items:flex-start}
-.ld-feats svg{flex:none;width:36px;height:36px;padding:7px;border-radius:10px;background:color-mix(in srgb,var(--ld-accent) 12%,transparent);fill:none;stroke:var(--ld-accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ld-form{display:flex;gap:8px;padding:6px;border:1px solid var(--sp-beige);border-radius:999px;background:var(--sp-card);box-shadow:0 14px 32px -18px rgba(80,70,40,.35);max-width:500px}
+.ld-form input{flex:1;min-width:0;border:0;background:transparent;font-size:15.5px;padding:10px 16px;color:var(--sp-ink);border-radius:999px}
+.ld-form input:focus{outline:none}.ld-form:focus-within{border-color:var(--sp-sage);box-shadow:0 0 0 3px color-mix(in srgb,var(--sp-sage) 25%,transparent)}
+.ld-btns{display:flex;flex-wrap:wrap;gap:12px}
+.landing .ld-big{min-height:50px;padding:13px 26px;font-size:16px}
+.ld-ghost{display:inline-flex;align-items:center;border:1.5px solid var(--sp-sage-d);color:var(--sp-sage-d);border-radius:999px;font-weight:700;cursor:pointer;background:transparent}
+.ld-ghost:hover{background:color-mix(in srgb,var(--sp-sage) 10%,transparent)}
+.ld-fine{margin:0;font-size:13.5px;color:var(--sp-muted)}
+.landing button.linkish{color:var(--sp-muted);font-size:13.5px}
+.ld-sent{display:flex;flex-direction:column;gap:8px;max-width:500px}
+.ld-art{margin:0;position:relative;width:100%;max-width:600px;justify-self:end;aspect-ratio:6/5}
+.ld-art svg{width:100%;height:100%;overflow:visible;display:block}
+.ld-art .mascot{transform-box:fill-box;transform-origin:50% 100%;animation:ld-bob 3.2s ease-in-out infinite}
+.ld-art .wave{transform-box:fill-box;transform-origin:85% 85%;animation:ld-wave 1.6s ease-in-out infinite}
+.ld-art .spark{animation:ld-spark 2.4s ease-in-out infinite}
+@keyframes ld-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes ld-wave{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+@keyframes ld-spark{0%,100%{opacity:.35}50%{opacity:1}}
+.ld-how,.ld-feat{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.ld-how h2,.ld-feat h2{font-weight:600;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.015em;margin:0 0 18px}
+.ld-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;width:100%}
+.ld-steps li{display:flex;flex-direction:column;align-items:center;gap:8px;padding:26px 24px 28px;background:var(--sp-card);border:1px solid var(--sp-beige);border-radius:26px;box-shadow:0 18px 40px -30px rgba(80,70,40,.45)}
+.ld-mini{width:112px;height:112px;display:block}.ld-mini svg{width:100%;height:100%}
+.ld-num{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--sp-sage-d);background:color-mix(in srgb,var(--sp-olive) 25%,transparent);border-radius:999px;padding:4px 12px}
+.ld-steps h3{font-size:23px;font-weight:600;margin:4px 0 0}
+.ld-steps p,.ld-feats span{margin:0;color:var(--sp-muted);font-size:15px;line-height:1.55}
+.ld-feats{list-style:none;margin:0;padding:clamp(24px,4vw,40px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 44px;background:color-mix(in srgb,var(--sp-olive) 18%,var(--sp-card));border-radius:30px;width:100%;text-align:left}
+.ld-feats li{display:flex;gap:16px;align-items:flex-start}
+.ld-feats svg{flex:none;width:46px;height:46px;padding:10px;border-radius:50%;background:var(--sp-card);fill:none;stroke:var(--sp-sage-d);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;box-shadow:0 6px 14px -10px rgba(80,70,40,.5)}
 .ld-feats div{display:flex;flex-direction:column;gap:4px}
-.ld-feats strong{font-size:15.5px;font-weight:600}
-.ld-foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ld-muted);border-top:1px solid var(--ld-line);padding-top:20px}
-.ld-foot span:first-child{font-family:var(--ld-serif);font-style:italic;color:var(--ld-ink);font-size:16px}
+.ld-feats strong{font-size:16.5px;font-weight:700}
+.ld-magic{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.ld-script{font-family:var(--sp-script);font-size:clamp(34px,4.6vw,54px);color:var(--sp-ink);transform:rotate(-4deg)}
+.ld-script span{color:var(--sp-sage);font-family:"Nunito Sans",sans-serif;font-size:.6em}
+.ld-sprig{width:120px;height:40px}
+.ld-foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--sp-muted);border-top:1px solid var(--sp-beige);padding-top:20px}
+.ld-foot-b{font-family:var(--sp-serif);font-weight:700;color:var(--sp-ink);font-size:17px}.ld-foot-b span{color:var(--sp-sage)}
 .ld-copy>*,.ld-art{animation:ld-rise .9s cubic-bezier(.2,.8,.2,1) both}
-.ld-copy>:nth-child(2){animation-delay:.08s}.ld-copy>:nth-child(3){animation-delay:.16s}.ld-copy>:nth-child(n+4){animation-delay:.24s}.ld-art{animation-delay:.2s}
+.ld-copy>:nth-child(2){animation-delay:.08s}.ld-copy>:nth-child(3){animation-delay:.16s}.ld-copy>:nth-child(n+4){animation-delay:.24s}.ld-art{animation-delay:.15s}
 @keyframes ld-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (max-width:860px){
-  .ld-hero{grid-template-columns:1fr;min-height:0}
-  .ld-art{max-width:420px}
-  .ld-steps{grid-template-columns:1fr}
-  .ld-feats{grid-template-columns:1fr}
-  .ld-nav-r{display:none}
+@media (max-width:900px){
+  .ld-hero{grid-template-columns:1fr}
+  .ld-art{justify-self:center;max-width:460px}
+  .ld-steps,.ld-feats{grid-template-columns:1fr}
+  .ld-links a{display:none}
 }
-@media (max-width:480px){.ld-form{flex-direction:column}.ld-form button{width:100%}}
-@media (prefers-reduced-motion:reduce){.ld-art .ch,.ld-card,.ld-copy>*,.ld-art{animation:none}.ld-art .ch{fill:var(--c)}}
-.wordmark{display:inline-flex;align-items:center;gap:7px;font-family:var(--ld-serif)!important;font-weight:600;letter-spacing:-.01em}
-.wordmark .logo{width:18px;height:18px;color:var(--accent)}
+.ld-logo{white-space:nowrap}
+@media (max-width:480px){.ld-links{display:none}.ld-form{flex-direction:column;border-radius:22px}.ld-form button{width:100%}.ld-logo{font-size:20px}.ld-logo-m{width:38px;height:38px}}
+@media (prefers-reduced-motion:reduce){.ld-art .mascot,.ld-art .wave,.ld-art .spark,.ld-copy>*,.ld-art{animation:none}}
+.wordmark{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display)!important;font-weight:700!important;letter-spacing:-.01em}
+.wm-mascot{width:30px;height:30px;display:inline-block;margin:-4px 0}.wm-mascot svg{width:100%;height:100%}
 .eyebrow:empty{display:none}
 button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted);text-decoration:underline;font-size:12.5px;font-weight:400;align-self:flex-start}
 .acct{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid var(--line)}
@@ -536,7 +545,7 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
 <body>
 <div class="shell" id="shell">
   <header class="bar">
-    <div class="brand"><span class="eyebrow" id="brand-eb"></span><strong class="wordmark"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.2" fill="currentColor" opacity=".9"/><g fill="currentColor"><circle cx="12" cy="2.8" r="1.9"/><circle cx="20" cy="7.4" r="1.9"/><circle cx="20" cy="16.6" r="1.9"/><circle cx="12" cy="21.2" r="1.9"/><circle cx="4" cy="16.6" r="1.9"/><circle cx="4" cy="7.4" r="1.9" opacity=".35"/></g></svg>Placecard</strong><span class="save" id="save-pill" aria-live="polite"></span></div>
+    <div class="brand"><span class="eyebrow" id="brand-eb"></span><strong class="wordmark"><span class="wm-mascot" aria-hidden="true"></span>Seat The Plan<span class="wm-heart" aria-hidden="true">&#x2661;</span></strong><span class="save" id="save-pill" aria-live="polite"></span></div>
     <ol class="steps" id="steps" aria-label="Setup steps"></ol>
     <div class="tools" id="tools" hidden>
       <div class="seg-group" role="group" aria-label="Plan status"><span class="pill" id="p-seated"></span><button type="button" class="pill" id="p-conf" title="Open the rules"></button></div>
@@ -782,44 +791,53 @@ button.linkish{background:none;border:0;min-height:0;padding:0;color:var(--muted
 </section>
 <section class="landing" id="gate" hidden aria-labelledby="gate-h" data-mode="signin">
   <header class="ld-nav">
-    <span class="ld-logo"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.2" fill="currentColor" opacity=".9"/><g fill="currentColor"><circle cx="12" cy="2.8" r="1.9"/><circle cx="20" cy="7.4" r="1.9"/><circle cx="20" cy="16.6" r="1.9"/><circle cx="12" cy="21.2" r="1.9"/><circle cx="4" cy="16.6" r="1.9"/><circle cx="4" cy="7.4" r="1.9" opacity=".35"/></g></svg>Placecard</span>
-    <span class="ld-nav-r"><span class="ld-dot" aria-hidden="true"></span>Private to the two of you</span>
+    <span class="ld-logo"><span class="ld-logo-m" aria-hidden="true"></span>Seat The Plan<span class="ld-heart" aria-hidden="true">&#x2661;</span></span>
+    <nav class="ld-links" aria-label="Page"><a href="#ld-how">How it works</a><a href="#ld-feat">Features</a><button type="button" class="primary ld-pill" data-ld-go>Get Started</button></nav>
   </header>
   <div class="ld-hero">
     <div class="ld-copy">
-      <p class="ld-kicker">Wedding seating, considered</p>
-      <h1 id="gate-h">Everyone in the <em>right</em> seat.</h1>
-      <p class="ld-lede">Bring your guest list and say who should sit together and who shouldn&#x2019;t. Placecard lays out the room, and the two of you fine&#x2011;tune it side by side, live.</p>
+      <p class="ld-kicker">Wedding seating planner</p>
+      <h1 id="gate-h"><span class="ld-l">Less seating stress.</span> <span class="ld-l">More wedding bliss.<span class="ld-h-heart" aria-hidden="true">&#x2661;</span></span></h1>
+      <p class="ld-lede">Create beautiful seating plans with ease. Bring your guest list, say who sits together, and plan the room with your partner, live.</p>
       <div class="ld-cta" data-for="signin">
         <form id="gate-form" class="ld-form" novalidate>
           <label class="sr" for="gate-email">Email</label>
-          <input type="email" id="gate-email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
-          <button type="submit" class="primary" id="gate-send">Email me a sign&#x2011;in link</button>
+          <input type="email" id="gate-email" autocomplete="email" inputmode="email" placeholder="Your email" required>
+          <button type="submit" class="primary ld-pill" id="gate-send">Send my sign&#x2011;in link &#x2192;</button>
         </form>
         <p class="err" id="gate-err" role="alert" hidden></p>
         <div id="gate-sent" hidden class="ld-sent"><p class="note info" id="gate-sent-t"></p><button type="button" class="linkish" id="gate-again">Use a different email</button></div>
-        <p class="ld-fine">No password. We email you a link that signs you in on this device.</p>
+        <p class="ld-fine">No password needed. We email you a link that signs you in on this device.</p>
         <button type="button" class="linkish" id="gate-local">Or try it without signing in (saves only in this browser)</button>
       </div>
       <div class="ld-cta" data-for="start">
-        <div class="row" style="gap:10px"><button type="button" class="primary ld-big" id="ld-start">Start your plan</button><label class="btn ld-big" for="ld-open">Open a saved plan</label><input class="sr" id="ld-open" type="file" accept=".json,application/json"></div>
-        <p class="ld-fine">Free, private, and nothing to install. Your plan stays in this browser.</p>
+        <div class="ld-btns"><button type="button" class="primary ld-pill ld-big" id="ld-start">Start Planning &#x2192;</button><label class="ld-ghost ld-big" for="ld-open">Open a saved plan</label><input class="sr" id="ld-open" type="file" accept=".json,application/json"></div>
+        <p class="ld-fine">Free and private. Your plan stays in this browser.</p>
       </div>
     </div>
     <figure class="ld-art" id="ld-art" aria-hidden="true"></figure>
   </div>
-  <ol class="ld-steps" aria-label="How it works">
-    <li><span class="ld-num">01</span><h2>Bring the list</h2><p>Paste it or upload a spreadsheet. Families, friend circles and plus&#x2011;ones are picked up for you.</p></li>
-    <li><span class="ld-num">02</span><h2>Set the rules</h2><p>Who sits together, who doesn&#x2019;t, how many circles share a table. Approve them in one pass.</p></li>
-    <li><span class="ld-num">03</span><h2>Arrange the room</h2><p>Drag tables and guests on a real floor plan. Every seat gets an ID for the place cards.</p></li>
-  </ol>
-  <ul class="ld-feats">
-    <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3.2"/><circle cx="16" cy="9" r="3.2"/><path d="M2.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6M10.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6"/></svg><div><strong>Plan it together</strong><span>Changes appear on your partner&#x2019;s screen within seconds. Nobody&#x2019;s work is lost.</span></div></li>
-    <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="7.5" height="14" rx="1.5"/><rect x="13.5" y="5" width="7.5" height="14" rx="1.5"/><path d="M6.7 9.5h.1M17.2 12h.1M6.7 14.5h.1"/></svg><div><strong>Compare options</strong><span>Save a version, try another, and see who moved and which scores better.</span></div></li>
-    <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="19.4" cy="7.8" r="1.5"/><circle cx="19.4" cy="16.2" r="1.5"/><circle cx="12" cy="20.5" r="1.5"/><circle cx="4.6" cy="16.2" r="1.5"/><circle cx="4.6" cy="7.8" r="1.5"/></svg><div><strong>Keep circles close</strong><span>Friends stay with friends, and no table becomes a mix of strangers.</span></div></li>
-    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg><div><strong>Ready for the venue</strong><span>Download the seat chart for the caterer, sorted by table and by name.</span></div></li>
-  </ul>
-  <footer class="ld-foot"><span>Placecard</span><span>Made for one wedding. Only the people you invite can see the guest list.</span></footer>
+  <section class="ld-how" id="ld-how" aria-labelledby="ld-how-h">
+    <p class="ld-eyebrow">How it works</p>
+    <h2 id="ld-how-h">Three calm steps to a happy room</h2>
+    <ol class="ld-steps">
+      <li><span class="ld-mini" data-mood="think"></span><span class="ld-num">Step 1</span><h3>Bring your list</h3><p>Paste it or upload a spreadsheet. Families, friend circles and plus&#x2011;ones are picked up for you.</p></li>
+      <li><span class="ld-mini" data-mood="wink"></span><span class="ld-num">Step 2</span><h3>Set the rules</h3><p>Who sits together, who doesn&#x2019;t, and how many circles share a table. Approve them in one go.</p></li>
+      <li><span class="ld-mini" data-mood="cheer"></span><span class="ld-num">Step 3</span><h3>Arrange the room</h3><p>Drag tables and guests on your floor plan. Every seat gets an ID for the place cards.</p></li>
+    </ol>
+  </section>
+  <section class="ld-feat" id="ld-feat" aria-labelledby="ld-feat-h">
+    <p class="ld-eyebrow">Features</p>
+    <h2 id="ld-feat-h">Everything in one place, nothing in a spreadsheet</h2>
+    <ul class="ld-feats">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M14.5 14.2c2.6-.4 4.9 1.2 5.8 4.3"/></svg><div><strong>Plan it together</strong><span>Your partner sees each change within seconds, and nobody&#x2019;s work is lost.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9h17M8 3v3M16 3v3M8 13h.01M12 13h.01M16 13h.01M8 16.5h.01M12 16.5h.01"/></svg><div><strong>Compare options</strong><span>Save a version, try another, and see who moved and which scores better.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg><div><strong>Keep loved ones close</strong><span>Friends stay with friends, and no table turns into a mix of strangers.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg><div><strong>Ready for the venue</strong><span>Download the seat chart for your caterer, sorted by table and by name.</span></div></li>
+    </ul>
+  </section>
+  <div class="ld-magic"><span class="ld-script">Make room for the magic.<span aria-hidden="true"> &#x2661;</span></span><svg class="ld-sprig" viewBox="0 0 120 40" aria-hidden="true"><path d="M4 34C34 30 70 20 112 6" fill="none" stroke="#6B8F71" stroke-width="2" stroke-linecap="round"/><g fill="#A9B8A0"><ellipse cx="40" cy="22" rx="8" ry="3.4" transform="rotate(-35 40 22)"/><ellipse cx="62" cy="13" rx="8" ry="3.4" transform="rotate(-50 62 13)"/><ellipse cx="84" cy="10" rx="8" ry="3.4" transform="rotate(-25 84 10)"/><ellipse cx="52" cy="28" rx="7" ry="3" transform="rotate(15 52 28)"/><ellipse cx="76" cy="20" rx="7" ry="3" transform="rotate(10 76 20)"/></g></svg></div>
+  <footer class="ld-foot"><span class="ld-foot-b">Seat The Plan<span aria-hidden="true"> &#x2661;</span></span><span>Made for one wedding. Only the people you invite can see the guest list.</span></footer>
 </section>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -3008,33 +3026,74 @@ $("#cloud-dismiss").addEventListener("click", () => { if (Sync.on()) Sync.noteDi
    15b. LANDING. The front page: sign-in when online sync is on, otherwise
         a start screen for a brand-new plan. Shows no guest data.
    ===================================================================== */
+/* Mr Table, the Seat The Plan mascot. mood: happy | wink | think | cheer. sign: holds the heart sign */
+function mascotSvg(o = {}){
+  const mood = o.mood || "happy", ink = "#3B3328", wood = "#8C6F4E", cloth = "#F7EBDF", line = "#A88E6E", leaf = ["#6B8F71", "#8DA683", "#A9B8A0"];
+  const rose = (x, y, r) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#FCF6EE" stroke="#D8C2A4" stroke-width="1.2"/><path d="M${x - r * .62} ${y + r * .15}a${r * .62} ${r * .62} 0 0 1 ${r * 1.15} -${r * .3}M${x - r * .32} ${y + r * .05}a${r * .35} ${r * .35} 0 0 1 ${r * .62} 0q0 ${r * .35} -${r * .3} ${r * .3}M${x - r * .5} ${y + r * .5}q${r * .5} ${r * .3} ${r} -${r * .15}" fill="none" stroke="#CDB28E" stroke-width="1.15" stroke-linecap="round"/></g>`;
+  const lf = (x, y, rot, c, l = 9) => `<ellipse cx="${x}" cy="${y}" rx="${l}" ry="${l * .42}" fill="${c}" transform="rotate(${rot} ${x} ${y})"/>`;
+  const eyes = mood === "wink" ? `<path d="M70 104q8-9 16 0" /><circle cx="122" cy="102" r="4.2" fill="${ink}" stroke="none"/>`
+    : mood === "think" ? `<circle cx="78" cy="102" r="4.2" fill="${ink}" stroke="none"/><circle cx="122" cy="102" r="4.2" fill="${ink}" stroke="none"/>`
+    : `<path d="M70 104q8-9 16 0"/><path d="M114 104q8-9 16 0"/>`;
+  const mouth = mood === "think" ? `<path d="M93 119q7 4 14-1"/>` : mood === "cheer" ? `<path d="M88 114q12 16 24 0z" fill="${ink}"/>` : `<path d="M89 114q11 12 22 0"/>`;
+  const armL = mood === "cheer" ? `<path d="M40 112q-14-10-18-28"/><circle cx="21" cy="82" r="5" fill="${ink}" stroke="none"/>` : mood === "think" ? `<path d="M40 118q-10 4-12 14"/><circle cx="28" cy="134" r="5" fill="${ink}" stroke="none"/>`
+    : `<g class="wave"><path d="M40 114q-16-6-22-22"/><circle cx="17" cy="89" r="5.2" fill="${ink}" stroke="none"/></g>`;
+  const armR = o.sign ? `<path d="M160 116q12-2 18-14"/>` : mood === "cheer" ? `<path d="M160 112q14-10 18-28"/><circle cx="179" cy="82" r="5" fill="${ink}" stroke="none"/>` : mood === "think" ? `<path d="M152 120q-4 10-18 6"/><circle cx="133" cy="126" r="4.6" fill="${ink}" stroke="none"/>`
+    : `<path d="M160 116q12 4 16 16"/><circle cx="177" cy="134" r="5" fill="${ink}" stroke="none"/>`;
+  const sign = o.sign ? `<g><path d="M182 30v118" stroke="${wood}" stroke-width="4" stroke-linecap="round"/><rect x="158" y="14" width="48" height="40" rx="4" fill="#FCF8F1" stroke="${wood}" stroke-width="3"/><path d="M182 44c-6-4-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-4 8-10 12z" fill="none" stroke="${wood}" stroke-width="2.4" stroke-linejoin="round"/><circle cx="180" cy="102" r="5.4" fill="${ink}"/></g>` : "";
+  const extra = mood === "think" ? `<g fill="none" stroke="${line}" stroke-width="2"><circle cx="168" cy="40" r="14" fill="#FCF8F1"/><circle cx="152" cy="62" r="3.4" fill="#FCF8F1"/></g><text x="168" y="46" text-anchor="middle" font-family="Nunito Sans,sans-serif" font-weight="700" font-size="17" fill="${ink}">?</text>`
+    : mood === "cheer" ? `<g fill="#C9A04E"><circle cx="30" cy="54" r="2.4"/><circle cx="172" cy="50" r="2.4"/><rect x="44" y="40" width="5" height="3" rx="1" transform="rotate(30 44 40)" fill="#E8B4AC"/><rect x="152" y="36" width="5" height="3" rx="1" transform="rotate(-30 152 36)" fill="#6B8F71"/></g>` : "";
+  return `<svg viewBox="0 0 210 200" class="mr-table">
+    <ellipse cx="100" cy="190" rx="${o.shadow === false ? 0 : 58}" ry="6" fill="#A9B8A0" opacity=".35"/>
+    ${extra}${sign}
+    <g fill="none" stroke="${ink}" stroke-width="6" stroke-linecap="round">${armL}${armR}</g>
+    <g fill="none" stroke="${ink}" stroke-width="6.5" stroke-linecap="round"><path d="M84 156q-2 14-8 24"/><path d="M118 156q2 14 6 24"/></g>
+    <ellipse cx="73" cy="182" rx="9" ry="5" fill="${ink}"/><ellipse cx="128" cy="182" rx="9" ry="5" fill="${ink}"/>
+    <path d="M44 72C42 100 36 124 32 148q9 10 21 4q12 9 24 2q12 9 24 1q12 9 24 1q12 8 24-2q12 6 19-6C164 124 158 100 156 72Z" fill="${cloth}" stroke="${line}" stroke-width="2.6" stroke-linejoin="round"/>
+    <g fill="none" stroke="#E7D4BE" stroke-width="2" stroke-linecap="round"><path d="M58 96q-4 26-8 50"/><path d="M142 96q4 26 8 50"/><path d="M100 132v18"/></g>
+    <ellipse cx="100" cy="72" rx="56" ry="13" fill="#FBF3EA" stroke="${line}" stroke-width="2.6"/>
+    <g>${lf(62, 66, -12, leaf[0], 15)}${lf(138, 66, 12, leaf[0], 15)}${lf(68, 50, -40, leaf[1], 14)}${lf(132, 50, 40, leaf[1], 14)}${lf(80, 36, -70, leaf[0], 13)}${lf(120, 36, 70, leaf[0], 13)}${lf(100, 30, 90, leaf[2], 12)}${lf(90, 30, -80, leaf[1], 10)}${lf(110, 30, 80, leaf[1], 10)}${lf(74, 70, 20, leaf[2], 10)}${lf(126, 70, -20, leaf[2], 10)}
+      <circle cx="74" cy="60" r="5" fill="#E8C9C3"/><circle cx="126" cy="60" r="5" fill="#E8C9C3"/><circle cx="92" cy="38" r="4" fill="#F4DEDA"/><circle cx="110" cy="38" r="4" fill="#DCCFB6"/>
+      ${rose(86, 60, 11.5)}${rose(115, 59, 12)}${rose(100, 47, 11)}${rose(100, 66, 8)}</g>
+    <g fill="none" stroke="${ink}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">${eyes}${mouth}</g>
+    <ellipse cx="64" cy="116" rx="8" ry="5" fill="#F2A9A3" opacity=".75"/><ellipse cx="136" cy="116" rx="8" ry="5" fill="#F2A9A3" opacity=".75"/>
+  </svg>`;
+}
 function landingArt(){
-  const C = ["var(--ld-accent)", "var(--ld-coral)", "var(--ld-gold)", "var(--ld-plum)", "var(--ld-sage)"];
-  let n = 0;
-  const table = (cx, cy, r, seats, cr, name, sub, cols, skip) => {
-    let h = `<circle class="tbl" cx="${cx}" cy="${cy}" r="${r}"/>`;
-    for (let i = 0; i < seats; i++) { if (skip && skip.includes(i)) continue; const a = -Math.PI / 2 + i * 2 * Math.PI / seats, x = (cx + Math.cos(a) * (r + cr + 9)).toFixed(1), y = (cy + Math.sin(a) * (r + cr + 9)).toFixed(1);
-      h += `<circle class="ch" cx="${x}" cy="${y}" r="${cr}" style="--i:${n++};--c:${C[cols[i % cols.length]]}"/>`; }
-    return h + `<text class="tname" x="${cx}" y="${cy - 2}" text-anchor="middle">${name}</text><text class="tsub" x="${cx}" y="${cy + 16}" text-anchor="middle">${sub}</text>`;
-  };
-  return `<svg viewBox="0 0 560 560" role="presentation">
-    <circle class="ring" cx="280" cy="280" r="262"/>
-    ${table(176, 178, 80, 10, 14, "Table 1", "10 SEATS", [0, 0, 0, 1, 1, 1, 0, 0, 2, 2])}
-    ${table(414, 148, 52, 7, 12, "Table 2", "7 SEATS", [3, 3, 3, 4, 4, 4, 3])}
-    ${table(300, 368, 62, 9, 13, "Table 3", "9 SEATS", [2, 2, 2, 2, 1, 1, 1, 4, 4])}
-    ${table(104, 418, 42, 6, 11, "Table 4", "6 SEATS", [4, 4, 0, 0, 3, 3])}
-  </svg><div class="ld-card"><span>Table 3, seat 04</span><b>Grandma Rose</b><span>Near the dance floor</span></div>`;
+  const lf = (x, y, rot, c, l = 12) => `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${l}" ry="${(l * .42).toFixed(1)}" fill="${c}" transform="rotate(${rot.toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+  const rose = (x, y, r, c = "#FCF6EE") => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${c}" stroke="#D8C2A4" stroke-width="1"/><path d="M${(x - r * .45).toFixed(1)} ${(y + r * .1).toFixed(1)}q${r * .45} -${r * .6} ${r * .9} 0q-${r * .4} ${r * .5} -${r * .55} ${r * .05}" fill="none" stroke="#C9AE8A" stroke-width="1" stroke-linecap="round"/>`;
+  let arch = ""; const cx = 330, cy = 300, R = 210, leaves = ["#6B8F71", "#8DA683", "#A9B8A0"];
+  for (let k = 0; k <= 46; k++) { const a = Math.PI + k * Math.PI / 46, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R * 1.02, deg = a * 180 / Math.PI;
+    arch += lf(x + Math.cos(a + 1.2) * 8, y + Math.sin(a + 1.2) * 8, deg + 60, leaves[k % 3]) + lf(x + Math.cos(a - 1.2) * 8, y + Math.sin(a - 1.2) * 8, deg - 60, leaves[(k + 1) % 3]); }
+  for (let k = 1; k < 12; k++) { const a = Math.PI + k * Math.PI / 12, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R * 1.02; arch += rose(x, y, k % 3 === 0 ? 13 : 10, k % 4 === 1 ? "#F4DEDA" : "#FCF6EE"); }
+  const chair = (x, flip) => `<g transform="translate(${x} 0) scale(${flip ? -1 : 1} 1)" stroke="#C9A97E" stroke-width="5" stroke-linecap="round" fill="none"><path d="M0 380v-110q30-14 60 0v110"/><path d="M14 280v58M30 276v62M46 280v58"/><path d="M-4 340h68M4 340l-4 60M56 340l4 60"/></g>`;
+  return `<svg viewBox="0 0 660 560" role="presentation">
+    <ellipse cx="340" cy="330" rx="300" ry="230" fill="#A9B8A0" opacity=".28"/>
+    <path d="M120 510V300a210 214 0 0 1 420 0v210" fill="#FBF7F0" opacity=".85"/>
+    ${arch}
+    ${chair(112, false)}${chair(548, true)}
+    <ellipse cx="330" cy="430" rx="215" ry="34" fill="#F7EEE4" stroke="#E2D2BE" stroke-width="2"/>
+    <path d="M115 430q0 56 12 84h406q12-28 12-84" fill="#F7EEE4" stroke="#E2D2BE" stroke-width="2"/>
+    <g fill="none" stroke="#E2D2BE" stroke-width="2"><ellipse cx="190" cy="426" rx="24" ry="7"/><ellipse cx="470" cy="426" rx="24" ry="7"/></g>
+    <ellipse cx="330" cy="538" rx="120" ry="10" fill="#A9B8A0" opacity=".35"/>
+    <g class="mascot"><g transform="translate(150 222) scale(1.75)">${mascotSvg({sign: true, shadow: false}).replace(/^<svg[^>]*>|<\/svg>$/g, "")}</g></g>
+    <g class="spark" stroke="#6B8F71" stroke-width="4" stroke-linecap="round"><path d="M120 120l-14-12M108 150h-18M136 96l-6-18"/></g>
+    <path class="spark" d="M560 150c-6-4-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-4 8-10 12z" fill="#A9B8A0" style="animation-delay:.8s" transform="translate(-30 -40) scale(1.6)"/>
+    <g fill="#8DA683">${lf(60, 500, -50, "#8DA683", 16)}${lf(84, 470, -70, "#A9B8A0", 15)}${lf(40, 470, -20, "#6B8F71", 14)}${lf(610, 490, 50, "#8DA683", 16)}${lf(590, 460, 70, "#A9B8A0", 15)}</g>
+  </svg>`;
 }
 function showLanding(mode){
-  const g = $("#gate"); g.dataset.mode = mode; if (!$("#ld-art").innerHTML) $("#ld-art").innerHTML = landingArt();
+  const g = $("#gate"); g.dataset.mode = mode;
+  if (!$("#ld-art").innerHTML) { $("#ld-art").innerHTML = landingArt(); $(".ld-logo-m").innerHTML = mascotSvg({mood: "happy", shadow: false}); $$(".ld-mini").forEach(m => m.innerHTML = mascotSvg({mood: m.dataset.mood})); }
   document.documentElement.classList.add("gated"); g.hidden = false; closePops(); window.scrollTo(0, 0);
 }
+$$("[data-ld-go]").forEach(b => b.addEventListener("click", () => { if ($("#gate").dataset.mode === "start") $("#ld-start").click(); else { window.scrollTo({top: 0, behavior: "smooth"}); $("#gate-email").focus(); } }));
 $("#ld-start").addEventListener("click", () => { Sync.hideGate(); const f = $("#w1-text") || $("#w1 textarea"); if (f) f.focus(); });
 $("#ld-open").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { if (loadLayoutText(String(rd.result))) Sync.hideGate(); }; rd.readAsText(f); e.target.value = ""; });
 
 /* =====================================================================
    14. BOOT
    ===================================================================== */
+$(".wm-mascot").innerHTML = mascotSvg({mood: "happy", shadow: false});
 Sync.init();
 renderPalette();
 if (S.step === 4 && !S.venueDone) S.step = S.guests.length ? 3 : 1;
