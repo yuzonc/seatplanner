@@ -173,6 +173,7 @@ Plan document (also the layout file):
 - Name: Seat The Plan. Tagline: "Less seating stress. More wedding bliss." Script line: "Make room for the magic."
 - Palette: sage #6B8F71 (buttons use #5E8164 for contrast), olive #A9B8A0, blush #E8C9C3, cream #F8F6EF, beige #E6DDCF, ink #3D4637.
 - Type: Fraunces for headings and the wordmark, Nunito Sans for body and UI, Dancing Script only for the script line.
+- The app uses the same palette, including the floor plan (tables, walkways, water, trees) and group colours (`GROUP_COLORS`). Plans saved with the old default group colours are switched to the new ones once, flagged by `settings.brandColors`.
 - Mascot: Mr Table (`mascotSvg({mood, sign})`, moods happy, wink, think, cheer). Pill buttons, line icons.
 - The front page lives in `#gate` (section `15b. LANDING`): `showLanding("signin")` when online sync is on and nobody is signed in, `showLanding("start")` for a brand-new local plan. It never shows guest data.
 - Storage keys still start with `seaside-`. Don't rename them, or saved plans in browsers are lost.

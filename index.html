@@ -17,31 +17,31 @@
    The plan fills the screen; adding, editing and lists live in a + popover, a floating inspector and one side drawer. */
 :root{
   --bg:#F8F6EF;--panel:#FFFEFB;--field:#F4F1E9;--ink:#3D4637;--muted:#6B7165;--line:#E6DDCF;--shadow:rgba(70,60,40,.14);
-  --accent:#5E8164;--on-accent:#FFFFFF;--accent-soft:#E7EEE3;--danger:#BF3F2A;--danger-soft:#FBE8E4;--ok:#2C7A4C;--ok-soft:#E3F2E8;--warn:#9E6410;--warn-soft:#FBF0DC;--focus:#D9480F;
+  --accent:#5E8164;--on-accent:#FFFFFF;--accent-soft:#E7EEE3;--danger:#B14A39;--danger-soft:#F7E3DE;--ok:#4C7A53;--ok-soft:#E5EEE1;--warn:#946419;--warn-soft:#F7EDD8;--focus:#C46A4B;
   --font-ui:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-display:"Fraunces",Georgia,serif;
   --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
-  --plan-bg:#ECEFED;--grid:#DCE2DF;--floor:#E3E1DA;--walk:#F2D8D1;--walk-ink:#6B2D22;--water:#BBD7EA;--water-ink:#1C4D6D;
-  --stage:#BAB7AE;--dance:#F8F6F1;--box-ink:#2A2E2C;--buffet:#CAD6F2;--buffet-ink:#24386A;--tree:#BEDBAD;--tree-ink:#2E521F;
-  --rock:#C6C8C6;--rock-ink:#3B413F;--label-ink:#17201E;
-  --t-main:#F2C1AC;--t-main-line:#983D1D;--t-prime:#CFCBF4;--t-prime-line:#4E45AF;--t-std:#D8D6CE;--t-std-line:#5E5D59;--t-ink:#1E1C29;
-  --chair:#FFFFFF;--chair-line:#8A908D;--sel:#5E8164;
+  --plan-bg:#F4F0E8;--grid:#E8E1D4;--floor:#EEE7DB;--walk:#F2E0D9;--walk-ink:#80513F;--water:#D5E3E0;--water-ink:#456A66;
+  --stage:#DCD2C2;--dance:#FCFAF5;--box-ink:#3D4637;--buffet:#E2E8D8;--buffet-ink:#4D5E40;--tree:#CBD8C1;--tree-ink:#46603F;
+  --rock:#DDD6C9;--rock-ink:#6A6052;--label-ink:#3D4637;
+  --t-main:#EFD3CB;--t-main-line:#A55F50;--t-prime:#D7E3D2;--t-prime-line:#5E8164;--t-std:#EAE2D3;--t-std-line:#8A7860;--t-ink:#3D4637;
+  --chair:#FFFEFB;--chair-line:#B3A894;--sel:#5E8164;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#151812;--panel:#1C2019;--field:#22271F;--ink:#ECE9DF;--muted:#A3A898;--line:#30362B;--shadow:rgba(0,0,0,.5);
-  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
-  --plan-bg:#131918;--grid:#1E2725;--floor:#232927;--walk:#4A2C27;--walk-ink:#F2CFC7;--water:#1D394D;--water-ink:#BEDCF0;
-  --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#26345A;--buffet-ink:#CAD6F5;--tree:#29431F;--tree-ink:#CCE6BD;
+  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#E8907C;--danger-soft:#3A221D;--ok:#9DBFA3;--ok-soft:#1F2D1E;--warn:#DDB062;--warn-soft:#33291A;--focus:#E89A78;
+  --plan-bg:#171A14;--grid:#22261E;--floor:#252920;--walk:#46302A;--walk-ink:#F0D3C8;--water:#22383A;--water-ink:#BFDAD6;
+  --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#2C3725;--buffet-ink:#D3DEC6;--tree:#2D4027;--tree-ink:#CFE2C2;
   --rock:#3A3F3D;--rock-ink:#D0D5D3;--label-ink:#E5EBE9;
-  --t-main:#6A331F;--t-main-line:#F0A88A;--t-prime:#3A3577;--t-prime-line:#B6B0F2;--t-std:#3C3B37;--t-std-line:#A7A59D;--t-ink:#F1F0EC;
+  --t-main:#5A3A30;--t-main-line:#E8B4A6;--t-prime:#33452F;--t-prime-line:#A9C8AE;--t-std:#3A362E;--t-std-line:#B8AC97;--t-ink:#ECE9DF;
   --chair:#29302E;--chair-line:#7C8683;--sel:#9DBFA3;color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#151812;--panel:#1C2019;--field:#22271F;--ink:#ECE9DF;--muted:#A3A898;--line:#30362B;--shadow:rgba(0,0,0,.5);
-  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#F07A63;--danger-soft:#3A1E19;--ok:#6BBF8D;--ok-soft:#173326;--warn:#E0A84A;--warn-soft:#352812;--focus:#FF8A4C;
-  --plan-bg:#131918;--grid:#1E2725;--floor:#232927;--walk:#4A2C27;--walk-ink:#F2CFC7;--water:#1D394D;--water-ink:#BEDCF0;
-  --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#26345A;--buffet-ink:#CAD6F5;--tree:#29431F;--tree-ink:#CCE6BD;
+  --accent:#9DBFA3;--on-accent:#172016;--accent-soft:#25331F;--danger:#E8907C;--danger-soft:#3A221D;--ok:#9DBFA3;--ok-soft:#1F2D1E;--warn:#DDB062;--warn-soft:#33291A;--focus:#E89A78;
+  --plan-bg:#171A14;--grid:#22261E;--floor:#252920;--walk:#46302A;--walk-ink:#F0D3C8;--water:#22383A;--water-ink:#BFDAD6;
+  --stage:#4A4843;--dance:#1E2422;--box-ink:#E5EBE9;--buffet:#2C3725;--buffet-ink:#D3DEC6;--tree:#2D4027;--tree-ink:#CFE2C2;
   --rock:#3A3F3D;--rock-ink:#D0D5D3;--label-ink:#E5EBE9;
-  --t-main:#6A331F;--t-main-line:#F0A88A;--t-prime:#3A3577;--t-prime-line:#B6B0F2;--t-std:#3C3B37;--t-std-line:#A7A59D;--t-ink:#F1F0EC;
+  --t-main:#5A3A30;--t-main-line:#E8B4A6;--t-prime:#33452F;--t-prime-line:#A9C8AE;--t-std:#3A362E;--t-std-line:#B8AC97;--t-ink:#ECE9DF;
   --chair:#29302E;--chair-line:#7C8683;--sel:#9DBFA3;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%;background:var(--bg);color:var(--ink)}
@@ -158,7 +158,7 @@ ul.tight{margin:0;padding-left:18px;font-size:13px;color:var(--muted);display:fl
 .wz-sticky .count{font-size:15px;font-variant-numeric:tabular-nums;text-align:center}
 .wz-sticky .count.short{color:var(--danger)}
 .wz-sticky .acts{display:flex;gap:10px;width:100%;max-width:560px}
-.btn-next{flex:1;justify-content:center;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:600;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn-next{flex:1;justify-content:center;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:700;background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn-next:hover{opacity:.9}
 .btn-back{border-radius:999px;padding:14px 18px;justify-content:center}
 @media (max-width:560px){.tbl-head,.trow{grid-template-columns:30px minmax(0,1fr) 104px 104px;gap:6px}.stepper{grid-template-columns:30px minmax(0,1fr) 30px;height:44px}.trow .lbl{font-size:14px}.tbl-head span{font-size:11.5px}}
@@ -854,7 +854,9 @@ const FEATURES = {changeBox: false, familyReview: false, accountSave: false};
    ===================================================================== */
 const STORAGE_KEY = "seaside-seating-v3";
 const SCHEMA_VERSION = 3;
-const GROUP_COLORS = ["#D85A30","#D4537E","#378ADD","#1D9E75","#BA7517","#7F77DD","#639922","#0F9DB0","#B0457A","#8A7A2A","#5E6AD2","#C2410C"];
+const GROUP_COLORS = ["#C26E55","#B5677A","#5F7FA3","#5E8164","#B88A2E","#8A5A8C","#7D8B3F","#3F7F7A","#9A6B8F","#8C6F4E","#6C6FA8","#4F6B4A"];
+/* plans made before the Seat The Plan colours: swap the old default colours for the new ones in the same order */
+const OLD_GROUP_COLORS = ["#D85A30","#D4537E","#378ADD","#1D9E75","#BA7517","#7F77DD","#639922","#0F9DB0","#B0457A","#8A7A2A","#5E6AD2","#C2410C"];
 const TIERS = ["Main table","VIP","Guest"];
 const HEADER_ROW = ["Name","Group","Subgroup","Tier","Plus one of","Sit with","Keep apart from","Notes"];
 const STEPS = ["Guest list","Seating rules","Venue","Seating plan"];
@@ -960,6 +962,7 @@ const Domain = {
   tables(s){ return s.elements.filter(e => e.type === "table"); },
   sanitize(s){
     s.settings = s.settings || {snap:.1, primeCount:4};
+    if (!s.settings.brandColors) { const recolor = d => (d.groups || []).forEach(g => { const k = OLD_GROUP_COLORS.indexOf(String(g.color || "").toUpperCase()); if (k >= 0) g.color = GROUP_COLORS[k]; }); recolor(s); (s.scenarios || []).forEach(sc => sc && sc.doc && recolor(sc.doc)); s.settings.brandColors = true; }
     if (!s.settings.tableWords) { Domain.longNames(s); (s.scenarios || []).forEach(sc => sc && sc.doc && Domain.longNames(sc.doc)); s.settings.tableWords = true; }
     s.candidates = s.candidates || []; s.unmatched = s.unmatched || []; if (!Array.isArray(s.scenarios)) s.scenarios = [];
     if (!s.venue || !Array.isArray(s.venue.rows)) s.venue = defaultVenue();
