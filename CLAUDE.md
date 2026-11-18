@@ -167,3 +167,8 @@ Plan document (also the layout file):
 - Database: `supabase/setup.sql`. Replace the two placeholder emails before running it; don't commit real emails.
 - Browser cache for sync: localStorage `seaside-sync-v1` = `{plan, rev, dirty, fresh, email, json}`. `json` holds the full plan including scenarios.
 - Sign out clears this browser's copy of the plan so no guest names are left behind.
+
+## Landing page and name
+
+- The app is called Placecard. The front page lives in `#gate` (section `15b. LANDING`): `showLanding("signin")` when online sync is on and nobody is signed in, `showLanding("start")` for a brand-new local plan. It never shows guest data.
+- Storage keys still start with `seaside-`. Don't rename them, or saved plans in browsers are lost.
